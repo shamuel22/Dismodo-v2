@@ -71,6 +71,8 @@ export interface SessionState {
   current: CurrentStep;
   items: ItemRecord[];
   interventions: InterventionRecord[];
+  /** Policy consultations that ended in "continue" (interventions keep their own decision). */
+  decisions: Array<{ seq: number; at: string; outcome: 'continue'; decision: DecisionRecord }>;
   context_id: string | null;
   unfamiliar_contexts: string[];
   energy: EnergyLevel | null;
@@ -109,6 +111,7 @@ export function replay(events: readonly SessionEvent[]): SessionState {
     current: { kind: 'done' },
     items: [],
     interventions: [],
+    decisions: [],
     context_id: null,
     unfamiliar_contexts: [],
     energy: started.declared.energy ?? null,
@@ -125,6 +128,7 @@ export function apply(state: SessionState, event: SessionEvent): SessionState {
     ...state,
     items: state.items.map((item) => ({ ...item, hints: [...item.hints] })),
     interventions: [...state.interventions],
+    decisions: [...state.decisions],
     unfamiliar_contexts: [...state.unfamiliar_contexts],
     last_seq: event.seq,
     last_at: event.at,
@@ -245,6 +249,9 @@ function applyEngine(state: SessionState, seq: number, at: string, event: Engine
       state.current = event.explanation ? { kind: 'explanation', seq } : state.current;
       return;
     }
+    case 'decision_recorded':
+      state.decisions.push({ seq, at, outcome: event.outcome, decision: event.decision });
+      return;
     case 'phase_changed':
       state.phase = event.to;
       if (event.to === 'done') state.current = { kind: 'done' };

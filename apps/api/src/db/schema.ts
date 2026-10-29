@@ -179,3 +179,34 @@ export const observations = pgTable(
     index('observations_memory_idx').on(t.tenantId, t.learnerId, t.skillKey),
   ],
 );
+
+/** Every call to a decision model, projected from session events for latency, cost and reliability views. */
+export const modelCalls = pgTable(
+  'model_calls',
+  {
+    sessionId: uuid('session_id')
+      .notNull()
+      .references(() => sessions.id),
+    /** Event that carries the decision this call belonged to. */
+    eventSeq: integer('event_seq').notNull(),
+    attempt: integer('attempt').notNull(),
+    tenantId: uuid('tenant_id').notNull(),
+    provider: text('provider').notNull(),
+    model: text('model').notNull(),
+    tier: text('tier').notNull(),
+    status: text('status').notNull(),
+    latencyMs: integer('latency_ms').notNull(),
+    inputTokens: integer('input_tokens'),
+    outputTokens: integer('output_tokens'),
+    reasoningTokens: integer('reasoning_tokens'),
+    error: text('error'),
+    /** Source of the decision that resulted: model, or fallback when every attempt failed. */
+    decisionSource: text('decision_source').notNull(),
+    escalationReason: text('escalation_reason'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.sessionId, t.eventSeq, t.attempt] }),
+    index('model_calls_tenant_idx').on(t.tenantId, t.createdAt),
+  ],
+);

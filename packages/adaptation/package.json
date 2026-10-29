@@ -1,0 +1,23 @@
+{
+  "name": "@dismodo/adaptation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dismodo/contracts": "workspace:*",
+    "@dismodo/engine": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@dismodo/activities": "workspace:*"
+  }
+}

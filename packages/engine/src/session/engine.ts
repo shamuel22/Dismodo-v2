@@ -14,6 +14,7 @@ import {
   renderExplanation,
   type AdaptationPolicy,
   type Decision,
+  type LearnerHistory,
 } from './policy';
 import { ENGINE_VERSION, type PackageRuntime } from './runtime';
 import { apply, itemById, liveItems, replay, type ItemRecord, type SessionState } from './state';
@@ -35,6 +36,7 @@ export interface EngineContext {
   now: Date;
   /** Problem identities this learner already saw in earlier sessions of the same skill. */
   seenIdentities?: readonly string[];
+  history?: LearnerHistory | null;
 }
 
 /** Accumulates engine events while keeping the working state in sync. */
@@ -225,7 +227,7 @@ function validateAction(runtime: PackageRuntime, state: SessionState, action: Le
 
 async function maybeIntervene(ctx: EngineContext, em: Emitter, item: ItemRecord): Promise<boolean> {
   if (em.state.phase === 'independent') return false;
-  const input = { runtime: ctx.runtime, state: em.state, item };
+  const input = { runtime: ctx.runtime, state: em.state, item, history: ctx.history ?? null };
   let decision: Decision;
   let fallbackReason: string | null = null;
   try {
@@ -239,7 +241,11 @@ async function maybeIntervene(ctx: EngineContext, em: Emitter, item: ItemRecord)
     decision = { kind: 'continue' };
   }
   if (fallbackReason !== null) {
+    const attempts = 'decision' in decision ? decision.decision?.attempts : undefined;
     decision = await editorialPolicy.afterEvaluation(input);
+    if (attempts && decision.kind === 'intervene') {
+      decision = { ...decision, decision: { ...decision.decision, attempts } };
+    }
     if (decision.kind === 'intervene') {
       if (!checkProposal(ctx.runtime, em.state, decision.intervention).ok) return false;
       decision = {
@@ -248,11 +254,15 @@ async function maybeIntervene(ctx: EngineContext, em: Emitter, item: ItemRecord)
       };
     }
   }
-  if (decision.kind !== 'intervene') return false;
+  if (decision.kind !== 'intervene') {
+    if (decision.decision)
+      em.emit({ type: 'decision_recorded', outcome: 'continue', decision: decision.decision });
+    return false;
+  }
   em.emit({
     type: 'intervention_started',
     intervention: decision.intervention,
-    explanation: renderExplanation(ctx.runtime, decision.intervention, item),
+    explanation: renderExplanation(ctx.runtime, decision.intervention, item, decision.bridge),
     decision: decision.decision,
   });
   return em.state.current.kind === 'explanation';

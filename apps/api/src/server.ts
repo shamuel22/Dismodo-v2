@@ -3,15 +3,15 @@ import rateLimit from '@fastify/rate-limit';
 import { sql } from 'drizzle-orm';
 import { builtinRegistry } from '@dismodo/activities';
 import type { ComponentRegistry } from '@dismodo/contracts';
+import { ENGINE_VERSION } from '@dismodo/engine';
 import { authenticator } from './auth/plugin';
 import type { Database } from './db/client';
 import { ApiError } from './errors';
 import { catalogRoutes } from './routes/catalog';
+import { metricsRoutes } from './routes/metrics';
 import { packageRoutes } from './routes/packages';
 import { sessionRoutes } from './routes/sessions';
 import { createSessionService, type SessionServiceDeps } from './services/sessions';
-
-export const ENGINE_VERSION = '0.1.0';
 
 export interface ServerDeps {
   db: Database;
@@ -19,6 +19,8 @@ export interface ServerDeps {
   publicBaseUrl?: string;
   sessionPageUrl?: string;
   policies?: SessionServiceDeps['policies'];
+  /** Configured decision models, shown on /health (no secrets). */
+  decisionModels?: Array<{ tier: string; provider: string; model: string; fault: string | null }>;
   now?: () => Date;
   logLevel?: string;
 }
@@ -29,6 +31,7 @@ export function buildServer({
   publicBaseUrl = 'http://localhost:4100',
   sessionPageUrl = `${publicBaseUrl}/s/`,
   policies,
+  decisionModels = [],
   now,
   logLevel = 'info',
 }: ServerDeps): FastifyInstance {
@@ -72,7 +75,12 @@ export function buildServer({
   app.get('/health', async (_request, reply) => {
     try {
       await db.execute(sql`select 1`);
-      return { status: 'ok', engine_version: ENGINE_VERSION, database: 'ok' };
+      return {
+        status: 'ok',
+        engine_version: ENGINE_VERSION,
+        database: 'ok',
+        decision_models: decisionModels,
+      };
     } catch {
       return reply
         .status(503)
@@ -95,6 +103,7 @@ export function buildServer({
     catalogRoutes(api, { registry, publicBaseUrl });
     packageRoutes(api, { db, registry, auth });
     sessionRoutes(api, { service: sessionService, auth });
+    metricsRoutes(api, { db, auth });
   });
 
   return app;

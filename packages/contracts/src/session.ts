@@ -59,6 +59,20 @@ export const SubmitEvent = z.strictObject({
 });
 export type SubmitEvent = z.infer<typeof SubmitEvent>;
 
+/** One call to a decision model, kept for traces, cost and latency analysis. */
+export interface ModelAttempt {
+  provider: string;
+  model: string;
+  tier: 'routine' | 'critical';
+  status: 'ok' | 'timeout' | 'http_error' | 'refused' | 'truncated' | 'invalid_output' | 'rejected';
+  latency_ms: number;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  reasoning_tokens: number | null;
+  /** Short reason when status is not ok. */
+  error?: string;
+}
+
 export interface DecisionRecord {
   /** Who chose: the package's fixed editorial route, deterministic rules, or a model (validated). */
   source: 'editorial' | 'rules' | 'model' | 'fallback';
@@ -70,6 +84,10 @@ export interface DecisionRecord {
   evidence_seqs: number[];
   model?: { provider: string; model: string; tier: 'routine' | 'critical'; latency_ms: number } | null;
   fallback_reason?: string | null;
+  /** Why the decision went to the critical tier, when it did. */
+  escalation_reason?: string | null;
+  /** Every model call made for this decision, in order (including failed ones). */
+  attempts?: ModelAttempt[];
 }
 
 export interface RenderedExplanation {
@@ -77,6 +95,11 @@ export interface RenderedExplanation {
   title: string;
   body: string;
   steps: string[];
+  /**
+   * Optional sentence written by the decision model to connect the learner's own answer to the reviewed
+   * explanation. Validated (length, tone, only numbers present in the item) and labelled as generated.
+   */
+  bridge?: string | null;
 }
 
 /** Events the engine writes. Together with learner actions they fully determine a session. */
@@ -124,6 +147,8 @@ export type EngineEvent =
       explanation: RenderedExplanation | null;
       decision: DecisionRecord;
     }
+  /** A policy consultation that ended in "continue"; interventions carry their decision instead. */
+  | { type: 'decision_recorded'; outcome: 'continue'; decision: DecisionRecord }
   | { type: 'phase_changed'; from: SessionPhase; to: SessionPhase; reason: string }
   | { type: 'status_changed'; to: SessionStatus; reason: string };
 

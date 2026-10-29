@@ -10,13 +10,26 @@ import type { ItemRecord, SessionState } from './state';
 
 export type Decision =
   | { kind: 'continue'; decision?: DecisionRecord }
-  | { kind: 'intervene'; intervention: InterventionId; decision: DecisionRecord };
+  | { kind: 'intervene'; intervention: InterventionId; decision: DecisionRecord; bridge?: string | null };
+
+/**
+ * What earlier sessions of the same learner and skill (same tenant) suggest. Provisional evidence:
+ * it may orient a decision, never decide it alone.
+ */
+export interface LearnerHistory {
+  sessions: number;
+  /** For each intervention seen before: how often the next answered item was correct. */
+  interventions: Array<{ intervention: InterventionId; followed_by_correct: number; total: number }>;
+  unfamiliar_contexts: string[];
+  last_independent: { correct: number; attempted: number } | null;
+}
 
 export interface PolicyInput {
   runtime: PackageRuntime;
   state: SessionState;
   /** The item just evaluated. */
   item: ItemRecord;
+  history?: LearnerHistory | null;
 }
 
 /**
@@ -119,6 +132,7 @@ export function renderExplanation(
   runtime: PackageRuntime,
   intervention: InterventionId,
   item: ItemRecord,
+  bridge?: string | null,
 ): RenderedExplanation | null {
   const content = runtime.pkg.interventions.editorial[intervention];
   if (!content) return null;
@@ -128,5 +142,6 @@ export function renderExplanation(
     title: content.title,
     body: renderTemplate(content.body_template, values),
     steps: (content.steps_template ?? []).map((step) => renderTemplate(step, values)),
+    bridge: bridge ?? null,
   };
 }

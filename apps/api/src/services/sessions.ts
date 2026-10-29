@@ -23,7 +23,7 @@ import {
   type SessionState,
 } from '@dismodo/engine';
 import type { Database } from '../db/client';
-import { learners, observations, packages, sessionEvents, sessions } from '../db/schema';
+import { learners, modelCalls, observations, packages, sessionEvents, sessions } from '../db/schema';
 import { ApiError } from '../errors';
 
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -69,6 +69,39 @@ function toSessionEvent(row: typeof sessionEvents.$inferSelect): SessionEvent {
 
 export function skillKey(runtime: PackageRuntime): string {
   return `${runtime.pkg.skill.id}|${runtime.activity.ref}`;
+}
+
+/** Projects the model attempts carried by decision events into model_calls. */
+async function recordModelCalls(
+  tx: Tx,
+  session: SessionRow,
+  firstSeq: number,
+  events: EngineEvent[],
+  at: Date,
+) {
+  const rows = events.flatMap((event, i) => {
+    if (event.type !== 'intervention_started' && event.type !== 'decision_recorded') return [];
+    const decision = event.decision;
+    return (decision.attempts ?? []).map((attempt, n) => ({
+      sessionId: session.id,
+      eventSeq: firstSeq + i,
+      attempt: n + 1,
+      tenantId: session.tenantId,
+      provider: attempt.provider,
+      model: attempt.model,
+      tier: attempt.tier,
+      status: attempt.status,
+      latencyMs: Math.round(attempt.latency_ms),
+      inputTokens: attempt.input_tokens,
+      outputTokens: attempt.output_tokens,
+      reasoningTokens: attempt.reasoning_tokens,
+      error: attempt.error ?? null,
+      decisionSource: decision.source,
+      escalationReason: decision.escalation_reason ?? null,
+      createdAt: at,
+    }));
+  });
+  if (rows.length) await tx.insert(modelCalls).values(rows);
 }
 
 export function createSessionService(deps: SessionServiceDeps) {
@@ -348,6 +381,7 @@ export function createSessionService(deps: SessionServiceDeps) {
             createdAt: at,
           })),
         ]);
+        await recordModelCalls(tx, session, learnerSeq + 1, result.events, at);
         const state = result.state;
         const [updated] = await tx
           .update(sessions)
