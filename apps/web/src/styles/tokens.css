@@ -1,0 +1,44 @@
+/* Design tokens from DESIGN.md v3.0 (§4 color, §5 type, §12 spacing and radii, §9 motion). Single source. */
+:root {
+  --color-background: #141517;
+  --color-background-deep: #101113;
+  --color-surface: #1c1d20;
+  --color-surface-raised: #25242a;
+  --color-plum-ink: #191323;
+  --color-plum-surface: #282034;
+  --color-pear: #d7ff7f;
+  --color-pear-hover: #e1ffa0;
+  --color-pear-pressed: #c4ed6b;
+  --color-lavender: #b39cff;
+  --color-text: #f3f0e9;
+  --color-text-secondary: #aaa8ad;
+  --color-text-muted: #918c98;
+  --color-text-on-pear: #141517;
+  --color-border-subtle: rgb(196 187 210 / 10%);
+  --color-border: rgb(196 187 210 / 18%);
+  --color-focus: #b39cff;
+  --color-success: #a9d99b;
+  --color-warning: #e5c582;
+  --color-danger: #f19b9b;
+
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --radius-control: 9px;
+  --radius-card: 14px;
+  --radius-code: 11px;
+
+  --ease-brand: cubic-bezier(0.2, 0.75, 0.2, 1);
+  --measure: 70ch;
+}

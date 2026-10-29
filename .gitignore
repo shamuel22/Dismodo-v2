@@ -10,3 +10,5 @@ coverage/
 .worktrees/
 playwright-report/
 test-results/
+
+.worktrees/

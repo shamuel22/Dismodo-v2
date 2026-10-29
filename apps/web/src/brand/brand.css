@@ -1,0 +1,172 @@
+/*
+ * Atlas geometry for the approved 2172 × 724 logo (DESIGN.md §6, §9). With symbol height S:
+ *   symbol crop (154, 206, 327, 340), wordmark crop (554, 286, 1465, 213).
+ * The spine sits at x = 298 in the atlas, 144 px into the symbol crop (≈ 44%).
+ */
+.brand {
+  --S: 88px;
+  --gap: 20px;
+  --unit: calc(var(--S) / 340);
+  --sym-w: calc(var(--unit) * 327);
+  --word-w: calc(var(--unit) * 1465);
+  --word-h: calc(var(--unit) * 213);
+  --atlas-w: calc(var(--unit) * 2172);
+  --atlas-h: calc(var(--unit) * 724);
+  --spine: calc(var(--unit) * 144);
+  --row-w: calc(var(--sym-w) + var(--gap) + var(--word-w));
+  --book-start: calc((var(--row-w) - var(--sym-w)) / 2);
+
+  position: relative;
+  display: block;
+  width: var(--row-w);
+  height: var(--S);
+  max-width: 100%;
+  flex: none;
+}
+
+@media (max-width: 1023px) {
+  .brand:not(.brand--static) {
+    --S: 68px;
+    --gap: 16px;
+  }
+}
+@media (max-width: 479px) {
+  .brand:not(.brand--static) {
+    --S: 48px;
+    --gap: 12px;
+  }
+}
+@media (max-width: 359px) {
+  /* Fits 320 px with margins: scale the whole lockup down, never stack it. */
+  .brand:not(.brand--static) {
+    --S: 42px;
+    --gap: 10px;
+  }
+}
+
+.brand--static {
+  --gap: calc(var(--S) * 0.23);
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.brand__book {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--sym-w);
+  height: var(--S);
+  z-index: 2;
+  perspective: calc(var(--S) * 6);
+}
+
+.brand__page {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: var(--atlas-w) var(--atlas-h);
+  background-position: calc(var(--unit) * -154) calc(var(--unit) * -206);
+  transform-origin: var(--spine) 50%;
+  backface-visibility: hidden;
+}
+.brand__page--left {
+  clip-path: inset(-2px calc(100% - var(--spine)) -2px -2px);
+}
+.brand__page--right {
+  clip-path: inset(-2px -2px -2px var(--spine));
+}
+
+.brand__word-mask {
+  position: absolute;
+  top: calc((var(--S) - var(--word-h)) / 2);
+  left: var(--spine);
+  right: 0;
+  height: var(--word-h);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.brand__word {
+  position: absolute;
+  top: 0;
+  left: calc(var(--sym-w) - var(--spine) + var(--gap));
+  width: var(--word-w);
+  height: var(--word-h);
+  background-repeat: no-repeat;
+  background-size: var(--atlas-w) var(--atlas-h);
+  background-position: calc(var(--unit) * -554) calc(var(--unit) * -286);
+}
+
+/* Before the intro starts, hold its first frame so a reload never flashes the final lockup. */
+.brand--pending .brand__book {
+  transform: translateX(var(--book-start));
+}
+.brand--pending .brand__page--left {
+  transform: rotateY(83deg);
+}
+.brand--pending .brand__page--right {
+  transform: rotateY(-83deg);
+}
+.brand--pending .brand__word {
+  transform: translateX(-108%);
+  opacity: 0;
+}
+
+/* Intro (DESIGN.md §9 timeline): opens once, the book glides left, the name emerges from the spine. */
+.brand--playing .brand__book {
+  animation: brand-book-move 1190ms 510ms var(--ease-brand) both;
+}
+.brand--playing .brand__page--left {
+  animation: brand-open-left 950ms var(--ease-brand) both;
+}
+.brand--playing .brand__page--right {
+  animation: brand-open-right 950ms var(--ease-brand) both;
+}
+.brand--playing .brand__word {
+  animation: brand-emerge 1050ms 650ms var(--ease-brand) both;
+}
+
+@keyframes brand-book-move {
+  from {
+    transform: translateX(var(--book-start));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes brand-open-left {
+  from {
+    transform: rotateY(83deg);
+  }
+  to {
+    transform: rotateY(0);
+  }
+}
+@keyframes brand-open-right {
+  from {
+    transform: rotateY(-83deg);
+  }
+  to {
+    transform: rotateY(0);
+  }
+}
+@keyframes brand-emerge {
+  0% {
+    transform: translateX(-108%);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand--playing .brand__book,
+  .brand--playing .brand__page,
+  .brand--playing .brand__word {
+    animation: none;
+  }
+}
