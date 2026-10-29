@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 5173,
     // In development the API runs separately; in production it serves this build itself.
-    proxy: { '/v1': api, '/health': api, '/llms.txt': api, '/llms-full.txt': api },
+    proxy: { '/v1': api, '/health': api, '/llms.txt': api, '/llms-full.txt': api, '^/docs/[^/]+\.md$': api },
   },
   build: { outDir: 'dist', sourcemap: true },
 });

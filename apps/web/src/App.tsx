@@ -1,6 +1,9 @@
 import { BrowserRouter, Route, Routes } from 'react-router';
 import { LandingPage } from './landing/LandingPage';
 import { SessionPage } from './session/SessionPage';
+import { DocPageView } from './docs/DocPageView';
+import { DocsLayout } from './docs/DocsLayout';
+import { PlaygroundPage } from './docs/PlaygroundPage';
 
 export function App() {
   return (
@@ -8,6 +11,22 @@ export function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/s" element={<SessionPage />} />
+        <Route
+          path="/docs/playground"
+          element={
+            <DocsLayout>
+              <PlaygroundPage />
+            </DocsLayout>
+          }
+        />
+        <Route
+          path="/docs/:slug?"
+          element={
+            <DocsLayout>
+              <DocPageView />
+            </DocsLayout>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

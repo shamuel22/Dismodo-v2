@@ -26,15 +26,22 @@ const PlaygroundRequest = z.strictObject({
  */
 export function playgroundRoutes(app: FastifyInstance, deps: { db: Database; service: SessionService }) {
   let tenantId: string | null = null;
+  const playgroundTenant = async () =>
+    (tenantId ??= (await ensureTenant(deps.db, PLAYGROUND_TENANT, 'DISMODO playground')).id);
+
+  app.get('/v1/playground/experiences', async () => ({
+    experiences: await deps.service.listExperiences(await playgroundTenant()),
+  }));
+
   app.post(
     '/v1/playground/sessions',
     { config: { rateLimit: { max: 12, timeWindow: '1 minute' } } },
     async (request, reply) => {
       const body = parseOrThrow(PlaygroundRequest, request.body ?? {}, 'playground request');
-      tenantId ??= (await ensureTenant(deps.db, PLAYGROUND_TENANT, 'DISMODO playground')).id;
+      const tenant = await playgroundTenant();
       const learnerRef = body.learner_ref ?? `playground-${randomBytes(8).toString('hex')}`;
       const created = await deps.service.create({
-        tenantId,
+        tenantId: tenant,
         experience: body.experience,
         learnerRef,
         declared: body.declared,

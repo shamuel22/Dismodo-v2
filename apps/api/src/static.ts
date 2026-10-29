@@ -14,5 +14,5 @@ export function registerWebApp(app: FastifyInstance, distDir: string): boolean {
 }
 
 export function isApiPath(url: string): boolean {
-  return /^\/(v1|health)(\/|$|\?)/.test(url) || url.startsWith('/llms');
+  return /^\/(v1|health)(\/|$|\?)/.test(url) || url.startsWith('/llms') || /^\/docs\/[^/]+\.md$/.test(url);
 }

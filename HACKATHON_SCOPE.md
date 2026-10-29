@@ -43,7 +43,7 @@ All code in this repository was written during the event. The git history is una
 | **Muse Spark 1.3** (Meta Model API) | Runs inside the engine as the routine decision tier: chooses the next support step and the matching reviewed hypothesis from closed lists; every call is traced. |
 | **Muse Wonder 1.0** (Meta Model API) | Runs inside the engine as the critical decision tier for escalated moments (rejected hypothesis, repeated mistake, confident but incorrect after support). |
 | **Muse Code with Muse Wonder** (Meta) | Second development agent working from written task specs in isolated git worktrees; built the TypeScript SDK and the Acme variant package. Its commits carry `Co-Authored-By: Muse Code`; every change was reviewed before merge. |
-| **Claude Code** (Anthropic) | Lead engineering agent under the founder's direction; its commits carry `Co-Authored-By: Claude`. |
+| **Claude Code** (Anthropic Opus 5.5) | Lead engineering agent under the founder's direction; its commits carry `Co-Authored-By: Claude`. |
 | **Codex** (OpenAI GPT-6.1) | Read-only design and security reviewer at stage boundaries (contract, isolation, adaptation). Wrote no project code; findings and resolutions are logged in `PLAN_DESARROLLO.md`. |
 
 All AI-generated code and content is reviewed before merge. Grading is done by deterministic evaluators, never by a model.

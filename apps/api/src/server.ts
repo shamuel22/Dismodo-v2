@@ -9,6 +9,7 @@ import type { Database } from './db/client';
 import { ApiError } from './errors';
 import { catalogRoutes } from './routes/catalog';
 import { learnerRoutes } from './routes/learners';
+import { llmsRoutes } from './routes/llms';
 import { playgroundRoutes } from './routes/playground';
 import { isApiPath, registerWebApp } from './static';
 import { metricsRoutes } from './routes/metrics';
@@ -27,6 +28,8 @@ export interface ServerDeps {
   now?: () => Date;
   /** Built web app to serve (landing, docs, session page); skipped when absent. */
   webDistDir?: string;
+  /** Markdown sources of the documentation, served as llms.txt and .md pages. */
+  docsDir?: string;
   logLevel?: string;
 }
 
@@ -39,6 +42,7 @@ export function buildServer({
   decisionModels = [],
   now,
   webDistDir,
+  docsDir,
   logLevel = 'info',
 }: ServerDeps): FastifyInstance {
   const app = Fastify({
@@ -115,6 +119,7 @@ export function buildServer({
     metricsRoutes(api, { db, auth });
     learnerRoutes(api, { db, auth });
     playgroundRoutes(api, { db, service: sessionService });
+    if (docsDir) llmsRoutes(api, { docsDir, publicBaseUrl });
   });
 
   return app;

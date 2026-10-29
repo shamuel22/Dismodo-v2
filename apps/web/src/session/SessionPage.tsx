@@ -53,7 +53,16 @@ function describeError(error: unknown): { title: string; message: string } {
   return { title: 'Connection problem', message: 'Check your connection and try again.' };
 }
 
-export function SessionPage({ token: givenToken, embedded = false }: { token?: string; embedded?: boolean }) {
+export function SessionPage({
+  token: givenToken,
+  embedded = false,
+  onChange,
+}: {
+  token?: string;
+  embedded?: boolean;
+  /** Called after the view loads or changes (the playground refreshes its decision trace). */
+  onChange?: () => void;
+}) {
   const token = useMemo(() => givenToken ?? takeToken(), [givenToken]);
   const client = useMemo<RuntimeClient | null>(
     () => (token ? createRuntimeClient({ baseUrl: window.location.origin, sessionToken: token }) : null),
@@ -75,10 +84,13 @@ export function SessionPage({ token: givenToken, embedded = false }: { token?: s
       return;
     }
     client.view().then(
-      (res) => setLoad({ state: 'ready', view: res.view }),
+      (res) => {
+        setLoad({ state: 'ready', view: res.view });
+        onChange?.();
+      },
       (error) => setLoad({ state: 'error', ...describeError(error) }),
     );
-  }, [client, embedded]);
+  }, [client, embedded, onChange]);
 
   const act = useCallback(
     async (action: LearnerAction, label: string) => {
@@ -89,6 +101,7 @@ export function SessionPage({ token: givenToken, embedded = false }: { token?: s
       try {
         const res = await client.submit(action);
         setLoad({ state: 'ready', view: res.view });
+        onChange?.();
       } catch (error) {
         setActionError(describeError(error).message);
       } finally {
@@ -97,7 +110,7 @@ export function SessionPage({ token: givenToken, embedded = false }: { token?: s
         setBusy(null);
       }
     },
-    [client],
+    [client, onChange],
   );
 
   if (load.state === 'loading') {
