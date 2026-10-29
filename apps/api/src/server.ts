@@ -9,6 +9,8 @@ import type { Database } from './db/client';
 import { ApiError } from './errors';
 import { catalogRoutes } from './routes/catalog';
 import { learnerRoutes } from './routes/learners';
+import { playgroundRoutes } from './routes/playground';
+import { isApiPath, registerWebApp } from './static';
 import { metricsRoutes } from './routes/metrics';
 import { packageRoutes } from './routes/packages';
 import { sessionRoutes } from './routes/sessions';
@@ -23,6 +25,8 @@ export interface ServerDeps {
   /** Configured decision models, shown on /health (no secrets). */
   decisionModels?: Array<{ tier: string; provider: string; model: string; fault: string | null }>;
   now?: () => Date;
+  /** Built web app to serve (landing, docs, session page); skipped when absent. */
+  webDistDir?: string;
   logLevel?: string;
 }
 
@@ -34,6 +38,7 @@ export function buildServer({
   policies,
   decisionModels = [],
   now,
+  webDistDir,
   logLevel = 'info',
 }: ServerDeps): FastifyInstance {
   const app = Fastify({
@@ -67,11 +72,14 @@ export function buildServer({
     return reply.status(500).send({ error: { code: 'internal_error', message: 'Unexpected server error.' } });
   });
 
-  app.setNotFoundHandler((request, reply) =>
-    reply
+  const servesWeb = webDistDir ? registerWebApp(app, webDistDir) : false;
+  app.setNotFoundHandler((request, reply) => {
+    // Client-side routes of the web app (/docs/..., /s/) resolve to its index.html.
+    if (servesWeb && request.method === 'GET' && !isApiPath(request.url)) return reply.sendFile('index.html');
+    return reply
       .status(404)
-      .send({ error: { code: 'not_found', message: `No route for ${request.method} ${request.url}.` } }),
-  );
+      .send({ error: { code: 'not_found', message: `No route for ${request.method} ${request.url}.` } });
+  });
 
   app.get('/health', async (_request, reply) => {
     try {
@@ -106,6 +114,7 @@ export function buildServer({
     sessionRoutes(api, { service: sessionService, auth });
     metricsRoutes(api, { db, auth });
     learnerRoutes(api, { db, auth });
+    playgroundRoutes(api, { db, service: sessionService });
   });
 
   return app;

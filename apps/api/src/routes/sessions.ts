@@ -99,6 +99,10 @@ export function sessionRoutes(
     service.view(await sessionFromToken(request)),
   );
 
+  app.get('/v1/runtime/evidence', runtimeLimit, async (request) =>
+    service.learnerReport(await sessionFromToken(request)),
+  );
+
   app.post('/v1/runtime/events', runtimeLimit, async (request) => {
     const session = await sessionFromToken(request);
     const body = parseOrThrow(SubmitEvent, request.body, 'event');

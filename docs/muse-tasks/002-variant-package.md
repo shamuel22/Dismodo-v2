@@ -8,19 +8,23 @@ versioned JSON packages; the engine validates and runs them. Read first:
 `packages/engine/src/validate-package.ts` (what validation checks).
 
 ## Goal
+
 Act as a second, independent builder ("Acme Onboarding", a workplace training product) and author a variant
 that changes the **objective and condition** within the supported family, not just the look:
 learners **identify** whether a marked part of a set is one half or one quarter (or three quarters), instead of
 selecting one quarter.
 
 ## Allowed files
+
 Create only:
+
 - `examples/acme-onboarding/experiences/halves-vs-quarters/experience.json`
 - `examples/acme-onboarding/experiences/halves-vs-quarters/README.md` (what it teaches, why each confusion and
   context exists, how to validate/import it)
-Do not modify any other file. Do not change engine code: the point is that a builder needs none.
+  Do not modify any other file. Do not change engine code: the point is that a builder needs none.
 
 ## Requirements
+
 - `schema: "dismodo.experience/1"`, `experience_id: "halves-vs-quarters"`, `version: "1.0.0"`, `locale: "en"`.
 - `activity.ref: "set-selection.v1"` with `task: "identify"`, fractions 1/2, 1/4 and 3/4,
   `identify_options` listing exactly those three (distinct values), totals range chosen so the practice pool is
@@ -45,11 +49,14 @@ Do not modify any other file. Do not change engine code: the point is that a bui
 - Plain text only (no `<` or `>`), all ids kebab-case.
 
 ## Verify before finishing
+
 From the worktree root:
+
 ```
 pnpm install --offline || pnpm install
 pnpm dismodo validate examples/acme-onboarding/experiences/halves-vs-quarters/experience.json
 ```
+
 It must print "is a valid package" with all tests passing. Then commit on the current branch with a message
 ending with:
 `Co-Authored-By: Muse Code <noreply@meta.com>`

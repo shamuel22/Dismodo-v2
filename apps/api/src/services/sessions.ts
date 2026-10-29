@@ -72,6 +72,36 @@ export function skillKey(runtime: PackageRuntime): string {
   return `${runtime.pkg.skill.id}|${runtime.activity.ref}`;
 }
 
+/** Every decision in a session, without model free text: who decided, with what, how fast, and why. */
+export function decisionTrace(log: SessionEvent[]) {
+  return log.flatMap((entry) => {
+    if (entry.actor !== 'engine') return [];
+    const e = entry.event;
+    if (e.type !== 'intervention_started' && e.type !== 'decision_recorded') return [];
+    const d = e.decision;
+    return [
+      {
+        seq: entry.seq,
+        at: entry.at,
+        outcome: e.type === 'intervention_started' ? e.intervention : 'continue',
+        source: d.source,
+        hypothesis: d.hypothesis,
+        rationale: d.source === 'model' ? null : d.rationale,
+        escalation_reason: d.escalation_reason ?? null,
+        fallback_reason: d.fallback_reason ?? null,
+        model: d.model ?? null,
+        attempts: (d.attempts ?? []).map(({ provider, model, tier, status, latency_ms }) => ({
+          provider,
+          model,
+          tier,
+          status,
+          latency_ms,
+        })),
+      },
+    ];
+  });
+}
+
 /** Projects the model attempts carried by decision events into model_calls. */
 async function recordModelCalls(
   tx: Tx,
@@ -477,6 +507,22 @@ export function createSessionService(deps: SessionServiceDeps) {
         runtime.pkg.session_policy.independent_items,
       );
       return { session_id: session.id, ...report };
+    },
+
+    /**
+     * The report as a learner (or the public playground) may see it: the model's free-text readings are
+     * builder-only, so they are left out; reviewed hypotheses and observed facts stay.
+     */
+    async learnerReport(session: SessionRow) {
+      const full = await this.report(session);
+      return {
+        ...full,
+        statements: {
+          ...full.statements,
+          interpretation: full.statements.interpretation.filter((s) => s.source !== 'model'),
+        },
+        decisions: decisionTrace(await loadLog(db, session.id)),
+      };
     },
 
     async events(session: SessionRow) {

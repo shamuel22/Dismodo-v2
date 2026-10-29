@@ -15,6 +15,7 @@ const app = buildServer({
   decisionModels: tiers.summary,
   publicBaseUrl: env.PUBLIC_BASE_URL,
   ...(env.SESSION_PAGE_URL ? { sessionPageUrl: env.SESSION_PAGE_URL } : {}),
+  webDistDir: new URL('../../web/dist', import.meta.url).pathname,
   logLevel: env.LOG_LEVEL,
 });
 

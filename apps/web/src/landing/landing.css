@@ -88,6 +88,10 @@
   }
 }
 
+.hero__cta {
+  margin-top: calc(var(--space-2) * -1);
+}
+
 .hero__scroll-cue {
   position: absolute;
   bottom: var(--space-6);

@@ -36,6 +36,10 @@ export function LandingPage() {
             <AnimatedBrand state={reducedMotion ? 'final' : playing ? 'playing' : 'pending'} />
           </h1>
           <TypewriterQuote text={HERO_PHRASE} startDelayMs={PHRASE_START_MS} reducedMotion={reducedMotion} />
+          {/* Founder's request (takes precedence over DESIGN.md §8): the documentation is where DISMODO is explained. */}
+          <Link to="/docs" className="button button--primary hero__cta">
+            View documentation
+          </Link>
           <a href="#intro" className="hero__scroll-cue" aria-label="Scroll to the introduction">
             <span className="hero__scroll-line" />
           </a>
