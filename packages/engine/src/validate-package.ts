@@ -30,11 +30,15 @@ export type PackageValidation =
   | { ok: false; issues: ValidationIssue[]; summary?: PackageValidationSummary };
 
 function zodIssues(error: z.ZodError, prefix: ReadonlyArray<PropertyKey> = []): ValidationIssue[] {
-  return error.issues.map((issue) => ({
-    path: toJsonPointer([...prefix, ...issue.path]),
-    code: issue.code,
-    message: issue.message,
-  }));
+  return error.issues.map((issue) => {
+    // Record keys fail with a generic message; surface the specific reason from the nested issue.
+    const nested = issue.code === 'invalid_key' ? issue.issues[0]?.message : undefined;
+    return {
+      path: toJsonPointer([...prefix, ...issue.path]),
+      code: issue.code,
+      message: nested ? `Key not allowed: ${nested}` : issue.message,
+    };
+  });
 }
 
 function prefixed(prefix: string, issues: ValidationIssue[]): ValidationIssue[] {
@@ -141,14 +145,15 @@ export function validatePackage(input: unknown, registry: ComponentRegistry): Pa
   issues.push(...prefixed('/activity/params', activity.checkParams(params.data)));
   const config = evaluator.configSchema.safeParse(pkg.evaluator.config);
   if (!config.success) issues.push(...zodIssues(config.error, ['evaluator', 'config']));
+  // Item pools and package tests are only meaningful with sound params and evaluator config.
+  const blocked = issues.length > 0;
 
   checkIdentifiers(pkg, issues);
   checkContexts(pkg, activity, params.data, issues);
   checkInterventions(pkg, activity, issues);
   checkConfusions(pkg, evaluator, issues);
   checkTone(pkg, issues);
-  // Pool and tests depend on sound params and contexts; stop here if those already failed.
-  if (issues.length > 0) return { ok: false, issues };
+  if (blocked) return { ok: false, issues };
 
   const summary = checkPoolAndTests(pkg, activity, evaluator, params.data, config.data, issues);
   if (issues.length > 0) return { ok: false, issues, summary };

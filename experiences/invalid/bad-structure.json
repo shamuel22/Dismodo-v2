@@ -1,0 +1,300 @@
+{
+  "schema": "dismodo.experience/1",
+  "experience_id": "bad-structure",
+  "version": "1.0",
+  "locale": "en",
+  "title": "Quarters <b>fast</b>",
+  "objective": "Find one quarter of a set of things.",
+  "summary": "Adults practice finding one quarter of a set by marking items on a rendered set, with familiar references and adaptive support.",
+  "audience": {
+    "description": "Adults who want to feel confident with everyday fractions.",
+    "adults_only": true
+  },
+  "skill": {
+    "id": "fraction-of-a-set",
+    "name": "Fraction of a set"
+  },
+  "prerequisites": [
+    {
+      "id": "equal-groups",
+      "text": "Split a set into equal groups and count how many are in each group."
+    }
+  ],
+  "essential_facts": [
+    {
+      "id": "quarter-is-four-groups",
+      "text": "One quarter means the whole set split into 4 equal groups, taking 1 of those groups."
+    },
+    {
+      "id": "whole-first",
+      "text": "Start from the whole set: count everything before you take a part."
+    },
+    {
+      "id": "quarter-by-dividing",
+      "text": "To find one quarter of a number of things, divide that number by 4."
+    }
+  ],
+  "activity": {
+    "ref": "set-selection.v1",
+    "params": {
+      "task": "select",
+      "fractions": [
+        {
+          "n": 1,
+          "d": 4
+        }
+      ],
+      "totals": {
+        "min": 8,
+        "max": 48
+      }
+    }
+  },
+  "evaluator": {
+    "ref": "fraction-of-set.v1",
+    "config": {}
+  },
+  "contexts": [
+    {
+      "id": "project-tasks",
+      "label": "Work project",
+      "nouns": {
+        "whole": "project",
+        "item_singular": "task",
+        "item_plural": "tasks",
+        "state": "done",
+        "constructor": "x"
+      },
+      "scenario_template": "Your {{whole}} has {{total}} {{item_plural}}. Mark {{fraction_text}} of the {{item_plural}} as {{state}}.",
+      "limits": "Tasks differ in size in real projects; here every task counts the same, so a quarter is about how many tasks, not how much work."
+    },
+    {
+      "id": "materials",
+      "label": "Sharing materials",
+      "nouns": {
+        "whole": "box",
+        "item_singular": "marker",
+        "item_plural": "markers",
+        "state": "handed out"
+      },
+      "scenario_template": "A {{whole}} holds {{total}} {{item_plural}}. Mark {{fraction_text}} of the {{item_plural}} as {{state}}.",
+      "limits": "Sharing usually means equal shares for several people; here we take one share and leave the rest in the box."
+    },
+    {
+      "id": "sports-season",
+      "label": "Sports season",
+      "nouns": {
+        "whole": "season",
+        "item_singular": "match",
+        "item_plural": "matches",
+        "state": "won"
+      },
+      "scenario_template": "A team plays {{total}} {{item_plural}} in a {{whole}}. Mark {{fraction_text}} of the {{item_plural}} as {{state}}.",
+      "limits": "Only works if the learner knows how a season of matches works; results depend on play, here we only count matches."
+    }
+  ],
+  "confusions": [
+    {
+      "id": "fraction-read-as-count",
+      "description": "Reads 1/4 as a number of things to take (1 thing, or 4 things) instead of a share of the whole.",
+      "signals": ["count_equals_numerator", "count_equals_denominator"],
+      "suggested": ["step-by-step", "worked-example"]
+    },
+    {
+      "id": "took-the-rest",
+      "description": "Marks the part that is left over instead of the asked part.",
+      "signals": ["selected_complement"],
+      "suggested": ["contrast"]
+    },
+    {
+      "id": "counting-slip",
+      "description": "Close to the right amount; likely a counting slip rather than a misunderstanding.",
+      "signals": ["off_by_one"],
+      "suggested": ["essential"]
+    }
+  ],
+  "interventions": {
+    "allowed": [
+      "essential",
+      "worked-example",
+      "step-by-step",
+      "contrast",
+      "prerequisite-check",
+      "swap-context",
+      "fade-support",
+      "shorten-session"
+    ],
+    "editorial": {
+      "essential": {
+        "title": "The key idea",
+        "body_template": "One quarter of {{total}} {{item_plural}} means splitting all {{total}} into 4 equal groups and taking 1 group. Count carefully: you need {{part_size}} {{item_plural}}."
+      },
+      "worked-example": {
+        "title": "Worked example",
+        "body_template": "Here is one worked through. The {{whole}} has {{total}} {{item_plural}}. Split them into {{group_count}} equal groups of {{group_size}}. One group is {{part_size}} {{item_plural}}, so {{fraction_text}} of {{total}} is {{part_size}}.",
+        "steps_template": [
+          "Count the whole: {{total}} {{item_plural}}.",
+          "Make {{group_count}} equal groups: {{total}} ÷ {{group_count}} = {{group_size}}.",
+          "Take {{numerator}} group: {{part_size}} {{item_plural}}."
+        ]
+      },
+      "step-by-step": {
+        "title": "One step at a time",
+        "body_template": "Let's go in small steps with the {{total}} {{item_plural}}.",
+        "steps_template": [
+          "First, how many {{item_plural}} are there in total? {{total}}.",
+          "A quarter means 4 equal groups. How many go in each group? {{total}} ÷ 4 = {{group_size}}.",
+          "Now take 1 of those groups: mark {{part_size}} {{item_plural}}."
+        ]
+      },
+      "contrast": {
+        "title": "Which part is asked?",
+        "body_template": "Compare the two parts. {{fraction_text}} of {{total}} is {{part_size}} {{item_plural}}. The part that is left is {{remaining}} {{item_plural}}. The task asks for the {{part_size}}, not the {{remaining}}."
+      },
+      "prerequisite-check": {
+        "title": "Equal groups first",
+        "body_template": "Before quarters, a quick check on equal groups: {{total}} {{item_plural}} shared into 4 equal groups gives {{group_size}} in each group."
+      }
+    }
+  },
+  "tone": {
+    "must": [
+      "Speak to an adult, plainly and respectfully.",
+      "Describe what happened in the task, never what the person is."
+    ],
+    "must_not_phrases": [
+      "easy",
+      "simply",
+      "obviously",
+      "just",
+      "for kids",
+      "you should know",
+      "bad at",
+      "learning style"
+    ]
+  },
+  "session_policy": {
+    "time_budget_minutes": 8,
+    "baseline": true,
+    "practice_items": 3,
+    "independent_items": 2,
+    "max_hints_per_item": 2,
+    "max_interventions": 3
+  },
+  "reserved_checks": [
+    {
+      "id": "check-materials-28",
+      "context_id": "materials",
+      "spec": {
+        "task": "select",
+        "total": 28,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      }
+    },
+    {
+      "id": "check-project-36",
+      "context_id": "project-tasks",
+      "spec": {
+        "task": "select",
+        "total": 36,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      }
+    }
+  ],
+  "tests": [
+    {
+      "name": "any five of twenty is one quarter",
+      "spec": {
+        "task": "select",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e2", "e4", "e9", "e11", "e20"]
+      },
+      "expect": {
+        "correct": true
+      }
+    },
+    {
+      "name": "one item reads the fraction as a count",
+      "spec": {
+        "task": "select",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1"]
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "count_equals_numerator"
+      }
+    },
+    {
+      "name": "four items counts the parts",
+      "spec": {
+        "task": "select",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1", "e2", "e3", "e4"]
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "count_equals_denominator"
+      }
+    },
+    {
+      "name": "the remaining part is not the asked part",
+      "spec": {
+        "task": "select",
+        "total": 8,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1", "e2", "e3", "e4", "e5", "e6"]
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "selected_complement"
+      }
+    },
+    {
+      "name": "repeated selections count once",
+      "spec": {
+        "task": "select",
+        "total": 12,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1", "e1", "e2", "e3"]
+      },
+      "expect": {
+        "correct": true
+      }
+    }
+  ]
+}

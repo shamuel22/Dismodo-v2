@@ -1,10 +1,12 @@
 import { createDatabase } from './db/client';
+import { runMigrations } from './db/migrate';
 import { loadEnv } from './env';
 import { buildServer } from './server';
 
 const env = loadEnv();
 const database = createDatabase(env.DATABASE_URL);
-const app = buildServer({ db: database.db, logLevel: env.LOG_LEVEL });
+await runMigrations(database.db);
+const app = buildServer({ db: database.db, publicBaseUrl: env.PUBLIC_BASE_URL, logLevel: env.LOG_LEVEL });
 
 const shutdown = async () => {
   await app.close();

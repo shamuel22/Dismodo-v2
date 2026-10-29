@@ -217,3 +217,24 @@ describe('validatePackage', () => {
     ]);
   });
 });
+
+describe('documented invalid examples', () => {
+  const load = (name: string) =>
+    JSON.parse(readFileSync(new URL(`../../../experiences/invalid/${name}.json`, import.meta.url), 'utf8'));
+
+  it.each([
+    ['bad-structure', ['invalid_format', 'custom', 'invalid_key']],
+    [
+      'bad-semantics',
+      [
+        'unknown_template_variable',
+        'missing_editorial',
+        'duplicate_reserved_check',
+        'not_enough_reserved_checks',
+      ],
+    ],
+    ['bad-tests', ['test_failed']],
+  ])('%s reports what its README promises', (name, expected) => {
+    expect(validatePackage(load(name), builtinRegistry).issues.map((i) => i.code)).toEqual(expected);
+  });
+});

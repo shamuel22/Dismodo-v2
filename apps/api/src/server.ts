@@ -1,17 +1,33 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { sql } from 'drizzle-orm';
+import { builtinRegistry } from '@dismodo/activities';
+import type { ComponentRegistry } from '@dismodo/contracts';
+import { authenticator } from './auth/plugin';
 import type { Database } from './db/client';
 import { ApiError } from './errors';
+import { catalogRoutes } from './routes/catalog';
+import { packageRoutes } from './routes/packages';
 
 export const ENGINE_VERSION = '0.1.0';
 
 export interface ServerDeps {
   db: Database;
+  registry?: ComponentRegistry;
+  publicBaseUrl?: string;
   logLevel?: string;
 }
 
-export function buildServer({ db, logLevel = 'info' }: ServerDeps): FastifyInstance {
-  const app = Fastify({ logger: { level: logLevel } });
+export function buildServer({
+  db,
+  registry = builtinRegistry,
+  publicBaseUrl = 'http://localhost:4100',
+  logLevel = 'info',
+}: ServerDeps): FastifyInstance {
+  const app = Fastify({
+    logger: { level: logLevel },
+    onProtoPoisoning: 'error',
+    onConstructorPoisoning: 'error',
+  });
 
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof ApiError) {
@@ -49,6 +65,10 @@ export function buildServer({ db, logLevel = 'info' }: ServerDeps): FastifyInsta
         .send({ status: 'degraded', engine_version: ENGINE_VERSION, database: 'unreachable' });
     }
   });
+
+  const auth = authenticator(db);
+  catalogRoutes(app, { registry, publicBaseUrl });
+  packageRoutes(app, { db, registry, auth });
 
   return app;
 }

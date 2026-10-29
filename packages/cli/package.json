@@ -1,0 +1,19 @@
+{
+  "name": "@dismodo/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "dismodo": "./bin/dismodo.js"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@dismodo/activities": "workspace:*",
+    "@dismodo/contracts": "workspace:*",
+    "@dismodo/engine": "workspace:*",
+    "tsx": "^4.23.15"
+  }
+}
