@@ -2,6 +2,12 @@
 
 **An adaptive learning engine for builders and AI agents.**
 
+> _"La mejor metodología de aprendizaje es aquella que se adapta al contexto, al objetivo de aprendizaje, a los
+> recursos disponibles y al perfil de los estudiantes."_
+>
+> The best learning methodology is the one that adapts to the context, the learning objective, the available
+> resources and the learners' profile.
+
 Builders define _what_ to teach and _how to check it_ in a versioned experience package. DISMODO runs the
 adaptive session: it observes attempts, hints, self-ratings and unfamiliar references, picks an allowed
 intervention (proposed by Meta's **Muse Spark**, enforced by a deterministic controller), and returns

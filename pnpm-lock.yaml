@@ -55,11 +55,33 @@ importers:
         specifier: ^8.23.1
         version: 8.23.1
 
+  packages/activities:
+    dependencies:
+      '@dismodo/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+
   packages/contracts:
     dependencies:
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+
+  packages/engine:
+    dependencies:
+      '@dismodo/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@dismodo/activities':
+        specifier: workspace:*
+        version: link:../activities
 
 packages:
 
