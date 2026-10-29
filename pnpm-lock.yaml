@@ -132,6 +132,12 @@ importers:
         specifier: workspace:*
         version: link:../activities
 
+  packages/sdk:
+    dependencies:
+      '@dismodo/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
 packages:
 
   '@cacheable/memory@2.2.0':
