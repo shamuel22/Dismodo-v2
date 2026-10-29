@@ -17,6 +17,9 @@ import type {
   SessionEventsResponse,
   SessionEvidence,
   SessionViewResponse,
+  LearnerEvidence,
+  PlaygroundSessionInput,
+  PlaygroundSessionResponse,
   StartSessionInput,
   StartSessionResponse,
   SubmitOptions,
@@ -215,6 +218,8 @@ export function createClient(options: ClientOptions): DismodoClient {
 
 export interface RuntimeClient {
   view(): Promise<SessionViewResponse>;
+  /** The session's report and decision trace, as its link holder may see them. */
+  evidence(): Promise<LearnerEvidence>;
   submit(action: LearnerAction, options?: SubmitOptions): Promise<SubmitSessionResponse>;
   tokenFromSessionUrl(url: string): string | null;
 }
@@ -225,8 +230,27 @@ export function createRuntimeClient(options: RuntimeClientOptions): RuntimeClien
   const requester = createRequester(options.baseUrl, fetchFn, () => `Session ${options.sessionToken}`);
   return {
     view: () => requester.request('GET', '/v1/runtime/session'),
+    evidence: () => requester.request('GET', '/v1/runtime/evidence'),
     submit: (action, submitOptions) =>
       requester.request('POST', '/v1/runtime/events', submitBody(action, submitOptions)),
     tokenFromSessionUrl,
   };
+}
+
+/**
+ * Starts a session in the public playground (no API key): public experiences only, anonymous learner ids,
+ * rate-limited. Meant for trying DISMODO; products use `createClient` with their own key.
+ */
+export async function startPlaygroundSession(
+  baseUrl: string,
+  input: PlaygroundSessionInput = {},
+  fetchFn: typeof fetch = globalThis.fetch,
+): Promise<PlaygroundSessionResponse> {
+  const requester = createRequester(baseUrl, fetchFn, () => undefined);
+  return requester.request('POST', '/v1/playground/sessions', {
+    ...(input.experience ? { experience: input.experience } : {}),
+    ...(input.declared ? { declared: input.declared } : {}),
+    ...(input.policy ? { policy: input.policy } : {}),
+    ...(input.learnerRef ? { learner_ref: input.learnerRef } : {}),
+  });
 }

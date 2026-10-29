@@ -14,10 +14,16 @@ export function malformedPlaceholders(template: string): boolean {
   return ANY_BRACES.test(template.replace(PLACEHOLDER, ''));
 }
 
+/**
+ * Fills placeholders. A value that starts a sentence is capitalised ("one quarter" → "One quarter"), so
+ * builders can place variables anywhere without producing lowercase sentence starts.
+ */
 export function renderTemplate(template: string, values: Readonly<Record<string, string | number>>): string {
-  return template.replace(PLACEHOLDER, (_match, name: string) => {
+  return template.replace(PLACEHOLDER, (_match, name: string, offset: number) => {
     const value = Object.hasOwn(values, name) ? values[name] : undefined;
     if (value === undefined) throw new Error(`Template variable "${name}" has no value.`);
-    return String(value);
+    const text = String(value);
+    const startsSentence = /^\s*$|[.!?:]\s+$/.test(template.slice(0, offset));
+    return startsSentence ? text.charAt(0).toUpperCase() + text.slice(1) : text;
   });
 }

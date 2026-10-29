@@ -218,6 +218,46 @@ export interface SessionEvidence {
   scope: 'this-skill-and-session';
 }
 
+/** One decision in a session as its link holder sees it: no model free text. */
+export interface DecisionTraceEntry {
+  seq: number;
+  at: string;
+  /** The intervention started, or "continue". */
+  outcome: InterventionId | 'continue';
+  source: 'editorial' | 'rules' | 'model' | 'fallback';
+  /** Reviewed hypothesis text, when the decision named one. */
+  hypothesis: string | null;
+  /** Rationale for non-model decisions (model rationales stay builder-only). */
+  rationale: string | null;
+  escalation_reason: string | null;
+  fallback_reason: string | null;
+  model: { provider: string; model: string; tier: 'routine' | 'critical'; latency_ms: number } | null;
+  attempts: Array<{
+    provider: string;
+    model: string;
+    tier: 'routine' | 'critical';
+    status: string;
+    latency_ms: number;
+  }>;
+}
+
+/** The report available to a learner link (`GET /v1/runtime/evidence`). */
+export interface LearnerEvidence extends SessionEvidence {
+  decisions: DecisionTraceEntry[];
+}
+
+export interface PlaygroundSessionInput {
+  experience?: string;
+  declared?: DeclaredContext;
+  policy?: 'adaptive' | 'fixed';
+  /** Anonymous id from an earlier playground session, so its history can inform this one. */
+  learnerRef?: string;
+}
+
+export interface PlaygroundSessionResponse extends StartSessionResponse {
+  learner_ref: string;
+}
+
 /** Alias matching the engine's report name. */
 export type SessionReport = SessionEvidence;
 

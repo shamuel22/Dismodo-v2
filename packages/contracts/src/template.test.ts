@@ -14,6 +14,15 @@ describe('templates', () => {
     expect(() => renderTemplate('{{constructor}}', {})).toThrow(/constructor/);
   });
 
+  it('capitalises values that start a sentence, and only those', () => {
+    const values = { fraction_text: 'one quarter', total: 20 };
+    expect(renderTemplate('{{fraction_text}} of {{total}}.', values)).toBe('One quarter of 20.');
+    expect(renderTemplate('Compare. {{fraction_text}} of {{total}}.', values)).toBe(
+      'Compare. One quarter of 20.',
+    );
+    expect(renderTemplate('Take {{fraction_text}}.', values)).toBe('Take one quarter.');
+  });
+
   it('detects malformed placeholders', () => {
     expect(malformedPlaceholders('ok {{total}}')).toBe(false);
     expect(malformedPlaceholders('broken {{total}')).toBe(true);

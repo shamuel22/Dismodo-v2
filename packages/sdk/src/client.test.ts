@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ExperiencePackage } from '@dismodo/contracts';
-import { createClient, createRuntimeClient, DismodoApiError, tokenFromSessionUrl } from './index';
+import {
+  createClient,
+  createRuntimeClient,
+  DismodoApiError,
+  startPlaygroundSession,
+  tokenFromSessionUrl,
+} from './index';
 
 type FetchCall = { url: string; method: string; headers: Record<string, string>; body: unknown };
 
@@ -305,5 +311,32 @@ describe('runtime client and token parsing', () => {
     );
     const runtime = createRuntimeClient({ baseUrl: 'http://api.test', sessionToken: 't', fetch: fetchFn });
     await expect(runtime.view()).rejects.toMatchObject({ status: 410, code: 'session_expired' });
+  });
+});
+
+describe('runtime evidence and playground', () => {
+  it('reads evidence with the session token and starts playground sessions without a key', async () => {
+    const calls: Array<[string, RequestInit]> = [];
+    const fetchMock = (async (url: string, init: RequestInit) => {
+      calls.push([url, init]);
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    }) as unknown as typeof fetch;
+    await createRuntimeClient({
+      baseUrl: 'https://d.example',
+      sessionToken: 'T'.repeat(43),
+      fetch: fetchMock,
+    }).evidence();
+    await startPlaygroundSession(
+      'https://d.example',
+      { declared: { familiar_contexts: ['materials'] } },
+      fetchMock,
+    );
+    expect(calls[0]![0]).toBe('https://d.example/v1/runtime/evidence');
+    expect((calls[0]![1].headers as Record<string, string>).Authorization).toBe(`Session ${'T'.repeat(43)}`);
+    expect(calls[1]![0]).toBe('https://d.example/v1/playground/sessions');
+    expect((calls[1]![1].headers as Record<string, string>).Authorization).toBeUndefined();
+    expect(JSON.parse(calls[1]![1].body as string)).toEqual({
+      declared: { familiar_contexts: ['materials'] },
+    });
   });
 });
