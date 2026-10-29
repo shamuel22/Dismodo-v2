@@ -74,6 +74,7 @@ export function startSession(ctx: EngineContext, options: StartOptions): EngineE
     declared: options.declared,
   };
   const em = new Emitter(replay([{ seq: 1, at, actor: 'engine', event: started }]), at);
+  applyHistory(ctx, em, options.policy);
   const phase = ctx.runtime.pkg.session_policy.baseline ? 'baseline' : 'practice';
   if (phase === 'practice')
     em.emit({ type: 'phase_changed', from: 'baseline', to: 'practice', reason: 'no_baseline' });
@@ -359,11 +360,45 @@ function advance(ctx: EngineContext, em: Emitter) {
   em.emit({ type: 'status_changed', to: 'completed', reason: 'all_items_done' });
 }
 
-/** Familiar contexts first (as declared), then the package order; never ones marked unfamiliar. */
+/**
+ * Familiar contexts first (as declared), then the package order, with references the learner found
+ * unfamiliar in earlier sessions last; never ones marked unfamiliar in this session. A declaration made
+ * now outweighs an older one: people can change what they recognise.
+ */
 function contextPreference(ctx: EngineContext, state: SessionState): string[] {
   const declared = (state.declared.familiar_contexts ?? []).filter((id) => ctx.runtime.contexts.has(id));
-  const ordered = [...new Set([...declared, ...ctx.runtime.contexts.keys()])];
+  const earlierUnfamiliar = state.history ? (ctx.history?.unfamiliar_contexts ?? []) : [];
+  const rest = [...ctx.runtime.contexts.keys()].filter((id) => !declared.includes(id));
+  const ordered = [
+    ...declared,
+    ...rest.filter((id) => !earlierUnfamiliar.includes(id)),
+    ...rest.filter((id) => earlierUnfamiliar.includes(id)),
+  ];
   return ordered.filter((id) => !state.unfamiliar_contexts.includes(id));
+}
+
+/**
+ * Lets earlier sessions of the same learner and skill orient this one (adaptive route only, so the fixed
+ * route stays a clean comparison). Effects are recorded in plain words; the policy also sees the summary.
+ */
+function applyHistory(ctx: EngineContext, em: Emitter, policy: 'adaptive' | 'fixed') {
+  const history = ctx.history;
+  if (policy !== 'adaptive' || !history || history.sessions === 0) return;
+  const effects: string[] = [];
+  const declared = em.state.declared.familiar_contexts ?? [];
+  const avoided = history.unfamiliar_contexts.filter(
+    (id) => ctx.runtime.contexts.has(id) && !declared.includes(id),
+  );
+  if (avoided.length) {
+    const labels = avoided.map((id) => ctx.runtime.contexts.get(id)!.label).join(', ');
+    effects.push(`Marked unfamiliar in an earlier session, so used last: ${labels}.`);
+  }
+  if (history.interventions.length) {
+    effects.push(
+      'Earlier support and its outcomes are available to the decision service as provisional evidence.',
+    );
+  }
+  if (effects.length) em.emit({ type: 'history_applied', sessions: history.sessions, effects });
 }
 
 function currentContext(ctx: EngineContext, state: SessionState): string {

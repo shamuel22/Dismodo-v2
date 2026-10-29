@@ -71,6 +71,8 @@ export interface SessionState {
   current: CurrentStep;
   items: ItemRecord[];
   interventions: InterventionRecord[];
+  /** How earlier sessions shaped this one, if they did. */
+  history: { sessions: number; effects: string[] } | null;
   /** Policy consultations that ended in "continue" (interventions keep their own decision). */
   decisions: Array<{ seq: number; at: string; outcome: 'continue'; decision: DecisionRecord }>;
   context_id: string | null;
@@ -111,6 +113,7 @@ export function replay(events: readonly SessionEvent[]): SessionState {
     current: { kind: 'done' },
     items: [],
     interventions: [],
+    history: null,
     decisions: [],
     context_id: null,
     unfamiliar_contexts: [],
@@ -249,6 +252,9 @@ function applyEngine(state: SessionState, seq: number, at: string, event: Engine
       state.current = event.explanation ? { kind: 'explanation', seq } : state.current;
       return;
     }
+    case 'history_applied':
+      state.history = { sessions: event.sessions, effects: event.effects };
+      return;
     case 'decision_recorded':
       state.decisions.push({ seq, at, outcome: event.outcome, decision: event.decision });
       return;

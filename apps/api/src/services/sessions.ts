@@ -25,6 +25,7 @@ import {
 import type { Database } from '../db/client';
 import { learners, modelCalls, observations, packages, sessionEvents, sessions } from '../db/schema';
 import { ApiError } from '../errors';
+import { learnerHistory } from './history';
 
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -289,8 +290,18 @@ export function createSessionService(deps: SessionServiceDeps) {
           })
           .returning();
         const seen = await seenIdentities(tx, session!);
+        const history = await learnerHistory(
+          tx,
+          {
+            tenantId: input.tenantId,
+            learnerId: learner.id,
+            skillKey: session!.skillKey,
+            excludeSessionId: session!.id,
+          },
+          createdAt,
+        );
         const events = startSession(
-          { runtime, policy: policyFor(input.policy), now: createdAt, seenIdentities: seen },
+          { runtime, policy: policyFor(input.policy), now: createdAt, seenIdentities: seen, history },
           {
             experienceRef,
             contentHash: pkgRow.contentHash,
@@ -367,6 +378,16 @@ export function createSessionService(deps: SessionServiceDeps) {
               policy: policyFor(snapshot.policy),
               now: at,
               seenIdentities: await seenIdentities(db, snapshot),
+              history: await learnerHistory(
+                db,
+                {
+                  tenantId: snapshot.tenantId,
+                  learnerId: snapshot.learnerId,
+                  skillKey: snapshot.skillKey,
+                  excludeSessionId: snapshot.id,
+                },
+                at,
+              ),
             },
             log,
             action,

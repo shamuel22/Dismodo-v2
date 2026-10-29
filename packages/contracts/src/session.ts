@@ -149,6 +149,8 @@ export type EngineEvent =
       explanation: RenderedExplanation | null;
       decision: DecisionRecord;
     }
+  /** Earlier sessions of the same learner and skill shaped this one; effects are listed in plain words. */
+  | { type: 'history_applied'; sessions: number; effects: string[] }
   /** A policy consultation that ended in "continue"; interventions carry their decision instead. */
   | { type: 'decision_recorded'; outcome: 'continue'; decision: DecisionRecord }
   | { type: 'phase_changed'; from: SessionPhase; to: SessionPhase; reason: string }

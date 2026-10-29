@@ -8,6 +8,7 @@ import { authenticator } from './auth/plugin';
 import type { Database } from './db/client';
 import { ApiError } from './errors';
 import { catalogRoutes } from './routes/catalog';
+import { learnerRoutes } from './routes/learners';
 import { metricsRoutes } from './routes/metrics';
 import { packageRoutes } from './routes/packages';
 import { sessionRoutes } from './routes/sessions';
@@ -104,6 +105,7 @@ export function buildServer({
     packageRoutes(api, { db, registry, auth });
     sessionRoutes(api, { service: sessionService, auth });
     metricsRoutes(api, { db, auth });
+    learnerRoutes(api, { db, auth });
   });
 
   return app;

@@ -210,3 +210,21 @@ export const modelCalls = pgTable(
     index('model_calls_tenant_idx').on(t.tenantId, t.createdAt),
   ],
 );
+
+/**
+ * A learner's request to stop using earlier evidence. The log stays intact (it is append-only); memory
+ * queries ignore observations made before the latest reset. skill_key null resets every skill.
+ */
+export const historyResets = pgTable(
+  'history_resets',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    learnerId: uuid('learner_id')
+      .notNull()
+      .references(() => learners.id),
+    skillKey: text('skill_key'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('history_resets_learner_idx').on(t.tenantId, t.learnerId)],
+);

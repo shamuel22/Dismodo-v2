@@ -44,6 +44,8 @@ export interface SessionReport {
     delayed_check: 'not_measured';
   };
   items: ItemEvidence[];
+  /** How earlier sessions of this learner and skill shaped this one, if they did. */
+  history: { sessions: number; effects: string[] } | null;
   /** The four kinds of statement are kept apart on purpose. */
   statements: {
     observed: string[];
@@ -189,6 +191,7 @@ export function buildReport(state: SessionState, independentTarget: number): Ses
       delayed_check: 'not_measured',
     },
     items: all,
+    history: state.history,
     statements: { observed, interpretation, learner_view: learnerView, not_yet_checked: notYetChecked },
     scope: 'this-skill-and-session',
   };
