@@ -1,8 +1,9 @@
 import js from '@eslint/js';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/drizzle/**'] },
+  { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/drizzle/**', '.worktrees/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -10,6 +11,11 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': 'error',
     },
+  },
+  {
+    // Node scripts that also evaluate code in a browser page (Playwright).
+    files: ['**/*.mjs', '**/bin/*.js'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
   {
     // Tests mutate fixtures into invalid shapes on purpose.
