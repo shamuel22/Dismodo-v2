@@ -237,7 +237,7 @@ describe('error mapping', () => {
         json: async () => {
           throw new Error('not json');
         },
-      }) as Response;
+      }) as unknown as Response;
     const { fetchFn } = mockFetch(() => bare(429));
     const limited = await createClient({ baseUrl: 'http://api.test', fetch: fetchFn })
       .catalog.components()

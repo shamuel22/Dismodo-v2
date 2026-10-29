@@ -138,10 +138,8 @@ export interface DismodoClient {
 /** Creates a client for the tenant API. Send the API key as a Bearer token; catalog routes need no key. */
 export function createClient(options: ClientOptions): DismodoClient {
   const fetchFn = options.fetch ?? globalThis.fetch;
-  const authed = createRequester(
-    options.baseUrl,
-    fetchFn,
-    () => (options.apiKey ? `Bearer ${options.apiKey}` : undefined),
+  const authed = createRequester(options.baseUrl, fetchFn, () =>
+    options.apiKey ? `Bearer ${options.apiKey}` : undefined,
   );
   // Catalog and attestation are public: they must work for clients created without an API key.
   const publicClient = createRequester(options.baseUrl, fetchFn, () => undefined);
@@ -224,11 +222,7 @@ export interface RuntimeClient {
 /** Creates a client for one learner link, authenticated by its session token (`Authorization: Session ...`). */
 export function createRuntimeClient(options: RuntimeClientOptions): RuntimeClient {
   const fetchFn = options.fetch ?? globalThis.fetch;
-  const requester = createRequester(
-    options.baseUrl,
-    fetchFn,
-    () => `Session ${options.sessionToken}`,
-  );
+  const requester = createRequester(options.baseUrl, fetchFn, () => `Session ${options.sessionToken}`);
   return {
     view: () => requester.request('GET', '/v1/runtime/session'),
     submit: (action, submitOptions) =>
