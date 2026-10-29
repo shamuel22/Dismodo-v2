@@ -135,9 +135,9 @@ export function createSessionService(deps: SessionServiceDeps) {
   }
 
   async function syncObservations(tx: Tx, session: SessionRow, state: SessionState) {
+    // Every presented problem counts as exposure for memory, answered or not.
     const rows = state.items
       .filter((item) => !item.replaced_by || item.unfamiliar)
-      .filter((item) => item.answer || item.unfamiliar)
       .map((item) => ({
         sessionId: session.id,
         itemId: item.item_id,
@@ -263,6 +263,7 @@ export function createSessionService(deps: SessionServiceDeps) {
           .set({ phase: state.phase, lastSeq: events.length, updatedAt: createdAt })
           .where(eq(sessions.id, session!.id))
           .returning();
+        await syncObservations(tx, updated!, state);
         return { session: describe(updated!, token), view: learnerView({ runtime }, state) };
       });
     },
@@ -371,9 +372,16 @@ export function createSessionService(deps: SessionServiceDeps) {
 
     async view(session: SessionRow) {
       const runtime = await packageOf(db, session);
+      const state = replay(await loadLog(db, session.id));
+      // Status and phase come from the same replay as the view, so a concurrent write cannot split them.
       return {
-        session: describe(session),
-        view: learnerView({ runtime }, replay(await loadLog(db, session.id))),
+        session: {
+          ...describe(session),
+          status: state.status,
+          phase: state.phase,
+          completed_at: state.completed_at,
+        },
+        view: learnerView({ runtime }, state),
       };
     },
 

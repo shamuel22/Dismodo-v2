@@ -185,6 +185,8 @@ function applyEngine(state: SessionState, seq: number, at: string, event: Engine
     case 'session_started':
       throw new Error('session_started can only be the first event.');
     case 'item_presented': {
+      // A re-rendered item carries the support already given: changing the example does not erase help.
+      const replaced = event.replaces ? itemById(state, event.replaces) : undefined;
       state.items.push({
         item_id: event.item_id,
         phase: event.phase,
@@ -195,16 +197,13 @@ function applyEngine(state: SessionState, seq: number, at: string, event: Engine
         view: event.view,
         template_values: event.template_values,
         hints_allowed: event.hints_allowed,
-        hints: [],
+        hints: replaced ? [...replaced.hints] : [],
         presented_seq: seq,
         presented_at: at,
         unfamiliar: false,
         ...(event.replaces ? { replaces: event.replaces } : {}),
       });
-      if (event.replaces) {
-        const old = itemById(state, event.replaces);
-        if (old) old.replaced_by = event.item_id;
-      }
+      if (replaced) replaced.replaced_by = event.item_id;
       state.context_id = event.context_id;
       state.phase = event.phase;
       state.current = { kind: 'item', item_id: event.item_id };

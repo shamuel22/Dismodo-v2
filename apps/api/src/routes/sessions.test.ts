@@ -256,4 +256,22 @@ describe('sessions', () => {
     expect(res.statusCode).toBe(410);
     await later.close();
   });
+
+  it('records exposure as soon as an item is shown', async () => {
+    const { session } = await startSession('learner-exposure');
+    const rows = await database.db.execute(
+      sql`select phase, correct from observations where session_id = ${session.session_id}`,
+    );
+    expect(rows.rows).toEqual([{ phase: 'baseline', correct: null }]);
+  });
+
+  it('limits how fast a learner link can be called', async () => {
+    const { session } = await startSession('learner-burst');
+    const token = tokenOf(session.url);
+    const statuses: number[] = [];
+    for (let i = 0; i < 92; i++) statuses.push((await runtime(token)).statusCode);
+    expect(statuses.slice(0, 90).every((s) => s === 200)).toBe(true);
+    expect(statuses.at(-1)).toBe(429);
+    expect((await runtime(token)).json().error.code).toBe('rate_limited');
+  });
 });

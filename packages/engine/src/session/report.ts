@@ -119,7 +119,6 @@ export function buildReport(state: SessionState, independentTarget: number): Ses
       );
     }
   }
-  const unfamiliar = [...new Set(live.filter((i) => i.unfamiliar).map((i) => i.context_id))];
   const allUnfamiliar = [...new Set(state.items.filter((i) => i.unfamiliar).map((i) => i.context_id))];
 
   const learnerView: string[] = [];
@@ -170,7 +169,7 @@ export function buildReport(state: SessionState, independentTarget: number): Ses
         hints_used: 0,
       },
       interventions,
-      unfamiliar_references: unfamiliar.length ? unfamiliar : allUnfamiliar,
+      unfamiliar_references: allUnfamiliar,
       self_ratings: ratings,
       confidence_mismatches: {
         confident_but_incorrect: count(

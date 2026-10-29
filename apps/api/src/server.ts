@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import rateLimit from '@fastify/rate-limit';
 import { sql } from 'drizzle-orm';
 import { builtinRegistry } from '@dismodo/activities';
 import type { ComponentRegistry } from '@dismodo/contracts';
@@ -48,6 +49,11 @@ export function buildServer({
       });
     }
     const statusCode = (error as { statusCode?: number }).statusCode;
+    if (statusCode === 429) {
+      return reply
+        .status(429)
+        .send({ error: { code: 'rate_limited', message: 'Too many requests; wait a moment and retry.' } });
+    }
     if (statusCode && statusCode < 500) {
       return reply
         .status(statusCode)
@@ -74,9 +80,9 @@ export function buildServer({
     }
   });
 
+  // Opt-in per route: learner-facing endpoints are public and need a ceiling.
+  void app.register(rateLimit, { global: false });
   const auth = authenticator(db);
-  catalogRoutes(app, { registry, publicBaseUrl });
-  packageRoutes(app, { db, registry, auth });
   const sessionService = createSessionService({
     db,
     registry,
@@ -84,7 +90,12 @@ export function buildServer({
     ...(policies ? { policies } : {}),
     ...(now ? { now } : {}),
   });
-  sessionRoutes(app, { service: sessionService, auth });
+  // Registered as a plugin so it loads after rate-limit and its onRoute hook sees every route.
+  void app.register(async (api) => {
+    catalogRoutes(api, { registry, publicBaseUrl });
+    packageRoutes(api, { db, registry, auth });
+    sessionRoutes(api, { service: sessionService, auth });
+  });
 
   return app;
 }

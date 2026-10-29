@@ -172,8 +172,12 @@ function validateAction(runtime: PackageRuntime, state: SessionState, action: Le
   };
   switch (action.type) {
     case 'answer':
-    case 'unfamiliar_reference':
       currentItem(action.item_id);
+      return;
+    case 'unfamiliar_reference':
+      if (currentItem(action.item_id).unfamiliar) {
+        throw new SessionActionError('already_flagged', 'This example is already marked as unfamiliar.');
+      }
       return;
     case 'hint_request': {
       const item = currentItem(action.item_id);
@@ -256,8 +260,7 @@ async function maybeIntervene(ctx: EngineContext, em: Emitter, item: ItemRecord)
 
 /** Re-renders the current problem in a reference the learner has not marked unfamiliar. */
 function swapContext(ctx: EngineContext, em: Emitter, item: ItemRecord) {
-  const { pkg } = ctx.runtime;
-  if (!pkg.interventions.allowed.includes('swap-context')) return;
+  if (!checkProposal(ctx.runtime, em.state, 'swap-context').ok) return;
   const target = contextPreference(ctx, em.state).find((id) => id !== item.context_id);
   if (!target) return;
   em.emit({
@@ -277,8 +280,7 @@ function swapContext(ctx: EngineContext, em: Emitter, item: ItemRecord) {
 
 /** Shortens today's practice once when the learner reports low energy (if the package allows it). */
 function shortenSession(ctx: EngineContext, em: Emitter) {
-  const { pkg } = ctx.runtime;
-  if (!pkg.interventions.allowed.includes('shorten-session')) return;
+  if (!checkProposal(ctx.runtime, em.state, 'shorten-session').ok) return;
   if (em.state.interventions.some((i) => i.intervention === 'shorten-session')) return;
   em.emit({
     type: 'intervention_started',

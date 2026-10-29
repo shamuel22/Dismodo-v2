@@ -84,9 +84,22 @@ export function sessionRoutes(
     return service.findByToken(token);
   };
 
-  app.get('/v1/runtime/session', async (request) => service.view(await sessionFromToken(request)));
+  // About one action per second sustained per session link; generous for a person, tight for a script.
+  const runtimeLimit = {
+    config: {
+      rateLimit: {
+        max: 90,
+        timeWindow: '1 minute',
+        keyGenerator: (request: FastifyRequest) => request.headers.authorization ?? request.ip,
+      },
+    },
+  };
 
-  app.post('/v1/runtime/events', async (request) => {
+  app.get('/v1/runtime/session', runtimeLimit, async (request) =>
+    service.view(await sessionFromToken(request)),
+  );
+
+  app.post('/v1/runtime/events', runtimeLimit, async (request) => {
     const session = await sessionFromToken(request);
     const body = parseOrThrow(SubmitEvent, request.body, 'event');
     return service.submit(session.id, body.action, body.client_event_id);

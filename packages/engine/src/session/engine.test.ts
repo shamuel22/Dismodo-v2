@@ -358,3 +358,66 @@ describe('guards', () => {
     expect(feedback.step).toMatchObject({ kind: 'feedback', result: { correct: false }, can_rate: true });
   });
 });
+
+describe('regressions from the E3 review', () => {
+  it('keeps hints used before a context swap on the replacement item', async () => {
+    const d = new Driver(editorialPolicy, { familiar_contexts: ['sports-season'] });
+    await d.answer();
+    await d.act({ type: 'continue' });
+    const item = d.currentItem;
+    await d.act({ type: 'hint_request', item_id: item.item_id });
+    await d.act({ type: 'hint_request', item_id: item.item_id });
+    await d.act({ type: 'unfamiliar_reference', item_id: item.item_id });
+    const replacement = d.currentItem;
+    expect(replacement.hints).toHaveLength(2);
+    await expect(d.act({ type: 'hint_request', item_id: replacement.item_id })).rejects.toMatchObject({
+      code: 'no_hints_left',
+    });
+    await d.answer();
+    await completeCorrectly(d);
+    expect(buildReport(d.state, 2).observations.practice).toMatchObject({
+      hints_used: 2,
+      correct_without_hints: 2,
+    });
+  });
+
+  it('counts flow interventions toward max_interventions', async () => {
+    const strict = buildRuntime(
+      { ...structuredClone(demo), session_policy: { ...demo.session_policy, max_interventions: 0 } },
+      builtinRegistry,
+    );
+    const ctx = (_log: SessionEvent[]): EngineContext => ({
+      runtime: strict,
+      policy: editorialPolicy,
+      now: new Date(T0),
+    });
+    const at = new Date(T0).toISOString();
+    const log: SessionEvent[] = startSession(ctx([]), {
+      experienceRef: 'x@1.0.0',
+      contentHash: 'h',
+      policy: 'fixed',
+      seed: 1,
+      declared: {},
+    }).map((event, i) => ({ seq: i + 1, at, actor: 'engine', event }));
+    const itemId = (replay(log).current as { item_id: string }).item_id;
+    const swap = await handleAction(ctx(log), log, { type: 'unfamiliar_reference', item_id: itemId });
+    expect(swap.events).toEqual([]);
+    const tired = await handleAction(ctx(log), log, { type: 'energy_check', level: 'low' });
+    expect(tired.events).toEqual([]);
+  });
+
+  it('reports every context ever marked unfamiliar', async () => {
+    const d = new Driver();
+    for (let i = 0; i < 3; i++) await d.act({ type: 'unfamiliar_reference', item_id: d.currentItem.item_id });
+    expect(buildReport(d.state, 2).observations.unfamiliar_references.sort()).toEqual([
+      'materials',
+      'project-tasks',
+      'sports-season',
+    ]);
+    await expect(
+      d.act({ type: 'unfamiliar_reference', item_id: d.currentItem.item_id }),
+    ).rejects.toMatchObject({
+      code: 'already_flagged',
+    });
+  });
+});
