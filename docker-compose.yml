@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: dismodo
+      POSTGRES_PASSWORD: dismodo
+      POSTGRES_DB: dismodo
+    ports:
+      - '5434:5432'
+    volumes:
+      - dismodo-v2-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dismodo -d dismodo']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+volumes:
+  dismodo-v2-db:

@@ -1,0 +1,5 @@
+pnpm-lock.yaml
+**/drizzle/**
+**/dist/**
+DISMODO_BRIEF_HACKATHON.md
+PLAN_DESARROLLO.md
