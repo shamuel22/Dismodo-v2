@@ -1,0 +1,526 @@
+{
+  "schema": "dismodo.experience/1",
+  "experience_id": "halves-vs-quarters",
+  "version": "1.0.0",
+  "locale": "en",
+  "title": "Halves and quarters: which part is marked",
+  "objective": "Identify whether a marked part of a set is one half, one quarter, or three quarters.",
+  "summary": "Adults in workplace onboarding practice naming a marked part of a set as one half, one quarter, or three quarters, using rosters, parcels, and checklist steps, with adaptive support.",
+  "audience": {
+    "description": "Adults starting a new role who want to feel confident reading halves and quarters in everyday work counts.",
+    "adults_only": true
+  },
+  "skill": {
+    "id": "halves-and-quarters",
+    "name": "Halves and quarters of a set"
+  },
+  "prerequisites": [
+    {
+      "id": "equal-groups",
+      "text": "Split a set into equal groups and count how many are in each group."
+    },
+    {
+      "id": "counting-a-set",
+      "text": "Count all items in a set and count a marked part of that set."
+    }
+  ],
+  "essential_facts": [
+    {
+      "id": "half-is-two-equal-groups",
+      "text": "One half means the whole set split into 2 equal groups, taking 1 of those groups."
+    },
+    {
+      "id": "quarters-are-four-equal-groups",
+      "text": "One quarter means the whole set split into 4 equal groups, taking 1 of those groups, and three quarters means taking 3 of those groups."
+    },
+    {
+      "id": "marked-part-and-whole",
+      "text": "To identify a marked part, count the marked items, count the whole set, and work out how many equal groups the marked part covers."
+    },
+    {
+      "id": "equal-group-size",
+      "text": "The size of one equal group is the total divided by the number of groups."
+    }
+  ],
+  "activity": {
+    "ref": "set-selection.v1",
+    "params": {
+      "task": "identify",
+      "fractions": [
+        {
+          "n": 1,
+          "d": 2
+        },
+        {
+          "n": 1,
+          "d": 4
+        },
+        {
+          "n": 3,
+          "d": 4
+        }
+      ],
+      "totals": {
+        "min": 8,
+        "max": 48
+      },
+      "identify_options": [
+        {
+          "n": 1,
+          "d": 2
+        },
+        {
+          "n": 1,
+          "d": 4
+        },
+        {
+          "n": 3,
+          "d": 4
+        }
+      ]
+    }
+  },
+  "evaluator": {
+    "ref": "fraction-of-set.v1",
+    "config": {}
+  },
+  "contexts": [
+    {
+      "id": "shift-roster",
+      "label": "Shift roster",
+      "nouns": {
+        "whole": "roster",
+        "item_singular": "shift",
+        "item_plural": "shifts",
+        "state": "covered"
+      },
+      "scenario_template": "A {{whole}} lists {{total}} {{item_plural}}. {{marked_count}} {{item_plural}} are marked as {{state}}. Which fraction of the {{item_plural}} is marked as {{state}}?",
+      "limits": "Shifts differ in length and timing in a real roster; here every shift counts the same, so the fraction is about how many shifts, not how many hours."
+    },
+    {
+      "id": "parcel-delivery",
+      "label": "Parcel delivery",
+      "nouns": {
+        "whole": "delivery",
+        "item_singular": "parcel",
+        "item_plural": "parcels",
+        "state": "loaded"
+      },
+      "scenario_template": "A {{whole}} includes {{total}} {{item_plural}}. {{marked_count}} {{item_plural}} are marked as {{state}}. Which fraction of the {{item_plural}} is marked as {{state}}?",
+      "limits": "Parcels differ in size and weight in real deliveries; here every parcel counts the same, so the fraction is about how many parcels, not how much space they take."
+    },
+    {
+      "id": "onboarding-checklist",
+      "label": "Onboarding checklist",
+      "nouns": {
+        "whole": "checklist",
+        "item_singular": "step",
+        "item_plural": "steps",
+        "state": "completed"
+      },
+      "scenario_template": "An onboarding {{whole}} has {{total}} {{item_plural}}. {{marked_count}} {{item_plural}} are marked as {{state}}. Which fraction of the {{item_plural}} is marked as {{state}}?",
+      "limits": "Checklist steps differ in effort in real onboarding; here every step counts the same, so the fraction is about how many steps, not how long onboarding takes."
+    }
+  ],
+  "confusions": [
+    {
+      "id": "chose-the-unmarked-part",
+      "description": "Chooses the fraction for the part that is not marked instead of the marked part.",
+      "signals": ["chose_complement"],
+      "suggested": ["contrast", "essential"]
+    },
+    {
+      "id": "wrong-number-of-equal-parts",
+      "description": "Uses the right number of equal parts but the wrong number of them taken, for example naming two quarters where the marked part covers a different number of quarters.",
+      "signals": ["wrong_numerator"],
+      "suggested": ["worked-example", "essential"]
+    },
+    {
+      "id": "fraction-does-not-match-marked-part",
+      "description": "Chooses a fraction with a different grouping of the whole, so it does not describe the marked part at all.",
+      "signals": ["wrong_fraction"],
+      "suggested": ["essential", "worked-example", "contrast"]
+    }
+  ],
+  "interventions": {
+    "allowed": [
+      "essential",
+      "worked-example",
+      "contrast",
+      "swap-context",
+      "fade-support"
+    ],
+    "editorial": {
+      "essential": {
+        "title": "The key idea",
+        "body_template": "The marked part is {{part_size}} of {{total}} {{item_plural}}. Split {{total}} into {{denominator}} equal groups of {{group_size}}. The marked part takes {{numerator}} of those groups, so it is {{fraction_text}} ({{fraction_symbol}})."
+      },
+      "worked-example": {
+        "title": "Worked example",
+        "body_template": "Here is one worked through. The {{whole}} has {{total}} {{item_plural}}, and {{part_size}} are marked as {{state}}. That marked part is {{fraction_text}} of the whole set.",
+        "steps_template": [
+          "Count the whole: {{total}} {{item_plural}}.",
+          "Split {{total}} into {{group_count}} equal groups: {{total}} divided by {{group_count}} gives {{group_size}} in each group.",
+          "Count how many groups are marked: {{part_size}} divided by {{group_size}} gives {{numerator}}.",
+          "So the marked part is {{fraction_text}} ({{fraction_symbol}}) of the {{item_plural}}."
+        ]
+      },
+      "contrast": {
+        "title": "Which part is marked",
+        "body_template": "Compare the marked and unmarked parts. The marked part is {{part_size}} {{item_plural}}, which is {{fraction_text}} of {{total}}. The part that is not marked is {{remaining}} {{item_plural}}. Choose the fraction for the marked part, not the part that is left."
+      }
+    }
+  },
+  "hints": [
+    "Start from the whole: there are {{total}} {{item_plural}} in the {{whole}}.",
+    "Count the marked {{item_plural}}. Split {{total}} into equal groups and work out how many {{item_plural}} are in one group.",
+    "One equal group is {{group_size}} {{item_plural}}. The marked part covers {{numerator}} of {{denominator}} groups, which is {{fraction_text}}."
+  ],
+  "tone": {
+    "must": [
+      "Speak to an adult, plainly and respectfully.",
+      "Describe what happened in the task, never what the person is."
+    ],
+    "must_not_phrases": [
+      "easy",
+      "simply",
+      "obviously",
+      "just",
+      "for kids",
+      "you should know",
+      "bad at",
+      "learning style"
+    ]
+  },
+  "session_policy": {
+    "time_budget_minutes": 8,
+    "baseline": true,
+    "practice_items": 3,
+    "independent_items": 2,
+    "max_hints_per_item": 2,
+    "max_interventions": 3
+  },
+  "reserved_checks": [
+    {
+      "id": "check-shift-roster-20",
+      "context_id": "shift-roster",
+      "spec": {
+        "task": "identify",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "check-parcel-delivery-24",
+      "context_id": "parcel-delivery",
+      "spec": {
+        "task": "identify",
+        "total": 24,
+        "fraction": {
+          "n": 1,
+          "d": 2
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "check-onboarding-checklist-32",
+      "context_id": "onboarding-checklist",
+      "spec": {
+        "task": "identify",
+        "total": 32,
+        "fraction": {
+          "n": 3,
+          "d": 4
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      }
+    }
+  ],
+  "tests": [
+    {
+      "name": "five of twenty marked is one quarter",
+      "spec": {
+        "task": "identify",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      },
+      "response": {
+        "choice": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "expect": {
+        "correct": true
+      }
+    },
+    {
+      "name": "eighteen of twenty four marked is three quarters",
+      "spec": {
+        "task": "identify",
+        "total": 24,
+        "fraction": {
+          "n": 3,
+          "d": 4
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      },
+      "response": {
+        "choice": {
+          "n": 3,
+          "d": 4
+        }
+      },
+      "expect": {
+        "correct": true
+      }
+    },
+    {
+      "name": "two of four counts as one half",
+      "spec": {
+        "task": "identify",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 2
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      },
+      "response": {
+        "choice": {
+          "n": 2,
+          "d": 4
+        }
+      },
+      "expect": {
+        "correct": true
+      }
+    },
+    {
+      "name": "two of eight counts as one quarter",
+      "spec": {
+        "task": "identify",
+        "total": 24,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      },
+      "response": {
+        "choice": {
+          "n": 2,
+          "d": 8
+        }
+      },
+      "expect": {
+        "correct": true
+      }
+    },
+    {
+      "name": "three quarters chosen for a one quarter marked part",
+      "spec": {
+        "task": "identify",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      },
+      "response": {
+        "choice": {
+          "n": 3,
+          "d": 4
+        }
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "chose_complement"
+      }
+    },
+    {
+      "name": "two quarters chosen for a three quarters marked part",
+      "spec": {
+        "task": "identify",
+        "total": 24,
+        "fraction": {
+          "n": 3,
+          "d": 4
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      },
+      "response": {
+        "choice": {
+          "n": 2,
+          "d": 4
+        }
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "wrong_numerator"
+      }
+    },
+    {
+      "name": "one quarter chosen for a one half marked part",
+      "spec": {
+        "task": "identify",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 2
+        },
+        "options": [
+          {
+            "n": 1,
+            "d": 2
+          },
+          {
+            "n": 1,
+            "d": 4
+          },
+          {
+            "n": 3,
+            "d": 4
+          }
+        ]
+      },
+      "response": {
+        "choice": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "wrong_fraction"
+      }
+    }
+  ]
+}
