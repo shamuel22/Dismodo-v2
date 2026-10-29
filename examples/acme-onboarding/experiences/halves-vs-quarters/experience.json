@@ -143,13 +143,7 @@
     }
   ],
   "interventions": {
-    "allowed": [
-      "essential",
-      "worked-example",
-      "contrast",
-      "swap-context",
-      "fade-support"
-    ],
+    "allowed": ["essential", "worked-example", "contrast", "swap-context", "fade-support"],
     "editorial": {
       "essential": {
         "title": "The key idea",
