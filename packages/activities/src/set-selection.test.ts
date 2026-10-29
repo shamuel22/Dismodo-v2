@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fractionOfSet } from './fraction-of-set';
 import { fractionWords, sameValue } from './fractions';
-import { seededRng } from './rng';
+import { seededRng } from '@dismodo/contracts';
 import {
   isDiagnostic,
   partSize,

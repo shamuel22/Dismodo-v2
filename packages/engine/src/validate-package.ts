@@ -254,6 +254,14 @@ function checkInterventions(pkg: ExperiencePackage, activity: ActivityAdapter, i
     });
   }
   const variables = new Set([...sharedNouns(pkg), ...activity.explanationVariables]);
+  pkg.hints.forEach((hint, i) => checkTemplate(hint, variables, `/hints/${i}`, issues));
+  if (pkg.session_policy.max_hints_per_item > pkg.hints.length) {
+    issues.push({
+      path: '/session_policy/max_hints_per_item',
+      code: 'not_enough_hints',
+      message: `max_hints_per_item is ${pkg.session_policy.max_hints_per_item} but the package has ${pkg.hints.length} hint(s).`,
+    });
+  }
   for (const [id, content] of Object.entries(editorial)) {
     if (!content) continue;
     checkTemplate(content.body_template, variables, `/interventions/editorial/${id}/body_template`, issues);
@@ -301,6 +309,7 @@ function learnerTexts(pkg: ExperiencePackage): Array<[string, string]> {
     texts.push([`/contexts/${i}/label`, c.label], [`/contexts/${i}/scenario_template`, c.scenario_template]);
     Object.entries(c.nouns).forEach(([key, value]) => texts.push([`/contexts/${i}/nouns/${key}`, value]));
   });
+  pkg.hints.forEach((hint, i) => texts.push([`/hints/${i}`, hint]));
   for (const [id, content] of Object.entries(pkg.interventions.editorial)) {
     if (!content) continue;
     texts.push([`/interventions/editorial/${id}/title`, content.title]);

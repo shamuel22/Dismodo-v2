@@ -6,7 +6,12 @@ import { buildServer } from './server';
 const env = loadEnv();
 const database = createDatabase(env.DATABASE_URL);
 await runMigrations(database.db);
-const app = buildServer({ db: database.db, publicBaseUrl: env.PUBLIC_BASE_URL, logLevel: env.LOG_LEVEL });
+const app = buildServer({
+  db: database.db,
+  publicBaseUrl: env.PUBLIC_BASE_URL,
+  ...(env.SESSION_PAGE_URL ? { sessionPageUrl: env.SESSION_PAGE_URL } : {}),
+  logLevel: env.LOG_LEVEL,
+});
 
 const shutdown = async () => {
   await app.close();

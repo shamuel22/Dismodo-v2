@@ -1,4 +1,4 @@
-import type { Rng } from '@dismodo/contracts';
+import type { Rng } from './components';
 
 /** Seeded PRNG (mulberry32) so a session's items can be replayed exactly. */
 export function seededRng(seed: number): Rng {
@@ -26,4 +26,12 @@ export function seededRng(seed: number): Rng {
       return out;
     },
   };
+}
+
+/** Derives an independent 32-bit seed from a base seed and a stream number. */
+export function deriveSeed(seed: number, stream: number): number {
+  let h = (seed ^ Math.imul(stream + 0x9e3779b9, 0x85ebca6b)) >>> 0;
+  h = Math.imul(h ^ (h >>> 16), 0x7feb352d) >>> 0;
+  h = Math.imul(h ^ (h >>> 15), 0x846ca68b) >>> 0;
+  return (h ^ (h >>> 16)) >>> 0;
 }

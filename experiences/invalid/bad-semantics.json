@@ -152,6 +152,11 @@
       }
     }
   },
+  "hints": [
+    "Start from the whole: how many {{item_plural}} are there in total?",
+    "A quarter means 4 equal groups. How many {{item_plural}} go in each group?",
+    "{{total}} ÷ 4 = {{group_size}}. One group is {{group_size}} {{item_plural}}."
+  ],
   "tone": {
     "must": [
       "Speak to an adult, plainly and respectfully.",

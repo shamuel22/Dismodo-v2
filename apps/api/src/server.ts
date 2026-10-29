@@ -7,6 +7,8 @@ import type { Database } from './db/client';
 import { ApiError } from './errors';
 import { catalogRoutes } from './routes/catalog';
 import { packageRoutes } from './routes/packages';
+import { sessionRoutes } from './routes/sessions';
+import { createSessionService, type SessionServiceDeps } from './services/sessions';
 
 export const ENGINE_VERSION = '0.1.0';
 
@@ -14,6 +16,9 @@ export interface ServerDeps {
   db: Database;
   registry?: ComponentRegistry;
   publicBaseUrl?: string;
+  sessionPageUrl?: string;
+  policies?: SessionServiceDeps['policies'];
+  now?: () => Date;
   logLevel?: string;
 }
 
@@ -21,6 +26,9 @@ export function buildServer({
   db,
   registry = builtinRegistry,
   publicBaseUrl = 'http://localhost:4100',
+  sessionPageUrl = `${publicBaseUrl}/s/`,
+  policies,
+  now,
   logLevel = 'info',
 }: ServerDeps): FastifyInstance {
   const app = Fastify({
@@ -69,6 +77,14 @@ export function buildServer({
   const auth = authenticator(db);
   catalogRoutes(app, { registry, publicBaseUrl });
   packageRoutes(app, { db, registry, auth });
+  const sessionService = createSessionService({
+    db,
+    registry,
+    sessionPageUrl,
+    ...(policies ? { policies } : {}),
+    ...(now ? { now } : {}),
+  });
+  sessionRoutes(app, { service: sessionService, auth });
 
   return app;
 }

@@ -103,6 +103,8 @@ export const ExperiencePackage = z.strictObject({
     allowed: z.array(InterventionId).min(1).max(9),
     editorial: z.partialRecord(InterventionId, EditorialContent),
   }),
+  /** Progressive hints for an item, from a nudge to the full method. Explanation variables are available. */
+  hints: z.array(PlainText(240)).max(5),
   tone: z.strictObject({
     must: z.array(Text(200)).max(10),
     must_not_phrases: z.array(Text(80)).max(40),

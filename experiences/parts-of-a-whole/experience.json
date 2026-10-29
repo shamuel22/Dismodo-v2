@@ -10,16 +10,25 @@
     "description": "Adults who want to feel confident with everyday fractions.",
     "adults_only": true
   },
-  "skill": { "id": "fraction-of-a-set", "name": "Fraction of a set" },
+  "skill": {
+    "id": "fraction-of-a-set",
+    "name": "Fraction of a set"
+  },
   "prerequisites": [
-    { "id": "equal-groups", "text": "Split a set into equal groups and count how many are in each group." }
+    {
+      "id": "equal-groups",
+      "text": "Split a set into equal groups and count how many are in each group."
+    }
   ],
   "essential_facts": [
     {
       "id": "quarter-is-four-groups",
       "text": "One quarter means the whole set split into 4 equal groups, taking 1 of those groups."
     },
-    { "id": "whole-first", "text": "Start from the whole set: count everything before you take a part." },
+    {
+      "id": "whole-first",
+      "text": "Start from the whole set: count everything before you take a part."
+    },
     {
       "id": "quarter-by-dividing",
       "text": "To find one quarter of a number of things, divide that number by 4."
@@ -29,30 +38,56 @@
     "ref": "set-selection.v1",
     "params": {
       "task": "select",
-      "fractions": [{ "n": 1, "d": 4 }],
-      "totals": { "min": 8, "max": 48 }
+      "fractions": [
+        {
+          "n": 1,
+          "d": 4
+        }
+      ],
+      "totals": {
+        "min": 8,
+        "max": 48
+      }
     }
   },
-  "evaluator": { "ref": "fraction-of-set.v1", "config": {} },
+  "evaluator": {
+    "ref": "fraction-of-set.v1",
+    "config": {}
+  },
   "contexts": [
     {
       "id": "project-tasks",
       "label": "Work project",
-      "nouns": { "whole": "project", "item_singular": "task", "item_plural": "tasks", "state": "done" },
+      "nouns": {
+        "whole": "project",
+        "item_singular": "task",
+        "item_plural": "tasks",
+        "state": "done"
+      },
       "scenario_template": "Your {{whole}} has {{total}} {{item_plural}}. Mark {{fraction_text}} of the {{item_plural}} as {{state}}.",
       "limits": "Tasks differ in size in real projects; here every task counts the same, so a quarter is about how many tasks, not how much work."
     },
     {
       "id": "materials",
       "label": "Sharing materials",
-      "nouns": { "whole": "box", "item_singular": "marker", "item_plural": "markers", "state": "handed out" },
+      "nouns": {
+        "whole": "box",
+        "item_singular": "marker",
+        "item_plural": "markers",
+        "state": "handed out"
+      },
       "scenario_template": "A {{whole}} holds {{total}} {{item_plural}}. Mark {{fraction_text}} of the {{item_plural}} as {{state}}.",
       "limits": "Sharing usually means equal shares for several people; here we take one share and leave the rest in the box."
     },
     {
       "id": "sports-season",
       "label": "Sports season",
-      "nouns": { "whole": "season", "item_singular": "match", "item_plural": "matches", "state": "won" },
+      "nouns": {
+        "whole": "season",
+        "item_singular": "match",
+        "item_plural": "matches",
+        "state": "won"
+      },
       "scenario_template": "A team plays {{total}} {{item_plural}} in a {{whole}}. Mark {{fraction_text}} of the {{item_plural}} as {{state}}.",
       "limits": "Only works if the learner knows how a season of matches works; results depend on play, here we only count matches."
     }
@@ -121,6 +156,11 @@
       }
     }
   },
+  "hints": [
+    "Start from the whole: how many {{item_plural}} are there in total?",
+    "A quarter means 4 equal groups. How many {{item_plural}} go in each group?",
+    "{{total}} ÷ 4 = {{group_size}}. One group is {{group_size}} {{item_plural}}."
+  ],
   "tone": {
     "must": [
       "Speak to an adult, plainly and respectfully.",
@@ -149,44 +189,116 @@
     {
       "id": "check-materials-28",
       "context_id": "materials",
-      "spec": { "task": "select", "total": 28, "fraction": { "n": 1, "d": 4 } }
+      "spec": {
+        "task": "select",
+        "total": 28,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      }
     },
     {
       "id": "check-project-36",
       "context_id": "project-tasks",
-      "spec": { "task": "select", "total": 36, "fraction": { "n": 1, "d": 4 } }
+      "spec": {
+        "task": "select",
+        "total": 36,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      }
     }
   ],
   "tests": [
     {
       "name": "any five of twenty is one quarter",
-      "spec": { "task": "select", "total": 20, "fraction": { "n": 1, "d": 4 } },
-      "response": { "selected": ["e2", "e4", "e9", "e11", "e20"] },
-      "expect": { "correct": true }
+      "spec": {
+        "task": "select",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e2", "e4", "e9", "e11", "e20"]
+      },
+      "expect": {
+        "correct": true
+      }
     },
     {
       "name": "one item reads the fraction as a count",
-      "spec": { "task": "select", "total": 20, "fraction": { "n": 1, "d": 4 } },
-      "response": { "selected": ["e1"] },
-      "expect": { "correct": false, "error_code": "count_equals_numerator" }
+      "spec": {
+        "task": "select",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1"]
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "count_equals_numerator"
+      }
     },
     {
       "name": "four items counts the parts",
-      "spec": { "task": "select", "total": 20, "fraction": { "n": 1, "d": 4 } },
-      "response": { "selected": ["e1", "e2", "e3", "e4"] },
-      "expect": { "correct": false, "error_code": "count_equals_denominator" }
+      "spec": {
+        "task": "select",
+        "total": 20,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1", "e2", "e3", "e4"]
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "count_equals_denominator"
+      }
     },
     {
       "name": "the remaining part is not the asked part",
-      "spec": { "task": "select", "total": 8, "fraction": { "n": 1, "d": 4 } },
-      "response": { "selected": ["e1", "e2", "e3", "e4", "e5", "e6"] },
-      "expect": { "correct": false, "error_code": "selected_complement" }
+      "spec": {
+        "task": "select",
+        "total": 8,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1", "e2", "e3", "e4", "e5", "e6"]
+      },
+      "expect": {
+        "correct": false,
+        "error_code": "selected_complement"
+      }
     },
     {
       "name": "repeated selections count once",
-      "spec": { "task": "select", "total": 12, "fraction": { "n": 1, "d": 4 } },
-      "response": { "selected": ["e1", "e1", "e2", "e3"] },
-      "expect": { "correct": true }
+      "spec": {
+        "task": "select",
+        "total": 12,
+        "fraction": {
+          "n": 1,
+          "d": 4
+        }
+      },
+      "response": {
+        "selected": ["e1", "e1", "e2", "e3"]
+      },
+      "expect": {
+        "correct": true
+      }
     }
   ]
 }

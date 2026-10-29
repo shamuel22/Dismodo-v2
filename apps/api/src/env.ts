@@ -5,6 +5,8 @@ const Env = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(4100),
   HOST: z.string().default('0.0.0.0'),
   PUBLIC_BASE_URL: z.url().default('http://localhost:4100'),
+  /** Learner session page; defaults to the page the API serves at /s/. */
+  SESSION_PAGE_URL: z.url().optional(),
   META_API_KEY: z.string().default(''),
   META_BASE_URL: z.url().default('https://api.meta.ai/v1'),
   META_MODEL: z.string().default('muse-spark-1.3'),

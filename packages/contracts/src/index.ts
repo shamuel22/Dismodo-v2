@@ -4,4 +4,6 @@ export * from './interventions';
 export * from './issues';
 export * from './package';
 export * from './primitives';
+export * from './rng';
+export * from './session';
 export * from './template';
