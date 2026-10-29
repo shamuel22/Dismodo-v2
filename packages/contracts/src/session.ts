@@ -78,8 +78,15 @@ export interface DecisionRecord {
   source: 'editorial' | 'rules' | 'model' | 'fallback';
   /** Short, learner-safe explanation of why; never model reasoning. */
   rationale: string;
-  /** Hypothesis about the difficulty in this task, if any. Provisional by definition. */
+  /**
+   * Hypothesis about the difficulty in this task, shown to the learner. Always reviewed text: a confusion
+   * described in the package (or a fixed engine sentence), never free model output. Provisional by definition.
+   */
   hypothesis: string | null;
+  /** Package confusion the hypothesis comes from, when it does. */
+  hypothesis_id?: string | null;
+  /** The model's own reading, for builders' traces and reports only; never shown to learners. */
+  model_interpretation?: string | null;
   /** Event sequence numbers the decision was based on. */
   evidence_seqs: number[];
   model?: { provider: string; model: string; tier: 'routine' | 'critical'; latency_ms: number } | null;
@@ -95,11 +102,6 @@ export interface RenderedExplanation {
   title: string;
   body: string;
   steps: string[];
-  /**
-   * Optional sentence written by the decision model to connect the learner's own answer to the reviewed
-   * explanation. Validated (length, tone, only numbers present in the item) and labelled as generated.
-   */
-  bridge?: string | null;
 }
 
 /** Events the engine writes. Together with learner actions they fully determine a session. */

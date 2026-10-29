@@ -10,7 +10,7 @@ import type { ItemRecord, SessionState } from './state';
 
 export type Decision =
   | { kind: 'continue'; decision?: DecisionRecord }
-  | { kind: 'intervene'; intervention: InterventionId; decision: DecisionRecord; bridge?: string | null };
+  | { kind: 'intervene'; intervention: InterventionId; decision: DecisionRecord };
 
 /**
  * What earlier sessions of the same learner and skill (same tenant) suggest. Provisional evidence:
@@ -86,6 +86,7 @@ export const editorialPolicy: AdaptationPolicy = {
             source: 'editorial',
             rationale: `The answer matches a pattern the package describes: ${confusion.description}`,
             hypothesis: confusion.description,
+            hypothesis_id: confusion.id,
             evidence_seqs: [item.presented_seq, item.answer!.seq],
           },
         };
@@ -132,7 +133,6 @@ export function renderExplanation(
   runtime: PackageRuntime,
   intervention: InterventionId,
   item: ItemRecord,
-  bridge?: string | null,
 ): RenderedExplanation | null {
   const content = runtime.pkg.interventions.editorial[intervention];
   if (!content) return null;
@@ -142,6 +142,5 @@ export function renderExplanation(
     title: content.title,
     body: renderTemplate(content.body_template, values),
     steps: (content.steps_template ?? []).map((step) => renderTemplate(step, values)),
-    bridge: bridge ?? null,
   };
 }

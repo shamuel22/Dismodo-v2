@@ -1,6 +1,6 @@
 /**
  * Plays one adaptive session against the configured decision models (real API calls) and prints every
- * decision: who decided, which model and tier, latency, hypothesis and bridge. Usage:
+ * decision: who decided, which model and tier, latency, the reviewed hypothesis the learner sees and the model reading kept in traces. Usage:
  *   pnpm --filter @dismodo/api decisions:live            # real models
  *   DECISION_FAULT=timeout pnpm ... decisions:live       # show the fallback path
  */
@@ -59,8 +59,8 @@ while (view.status === 'active') {
     console.log(`\n[${view.step.item.phase}] ${view.step.item.prompt}  → marks ${count}`);
   } else if (view.step.kind === 'explanation') {
     const e = view.step.explanation;
-    console.log(`  ↳ ${e.intervention}: ${e.title}${e.bridge ? `\n    bridge: "${e.bridge}"` : ''}`);
-    if (view.step.hypothesis) console.log(`    hypothesis: ${view.step.hypothesis}`);
+    console.log(`  ↳ ${e.intervention}: ${e.title}`);
+    if (view.step.hypothesis) console.log(`    learner sees (reviewed): ${view.step.hypothesis}`);
     if (view.step.can_give_feedback && !disagreed) {
       disagreed = true;
       action = {
@@ -91,6 +91,7 @@ for (const e of events) {
     `  #${e.seq} ${e.event.intervention ?? 'continue'} · source=${d.source}${d.escalation_reason ? ` · escalated: ${d.escalation_reason}` : ''}`,
   );
   if (attempts.length) console.log(`     attempts: ${attempts.join(' → ')}`);
+  if (d.model_interpretation) console.log(`     model reading (trace only): ${d.model_interpretation}`);
   if (d.fallback_reason) console.log(`     fallback: ${d.fallback_reason}`);
 }
 const report = (await call('GET', `/v1/sessions/${id}/evidence`)).json();

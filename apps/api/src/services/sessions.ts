@@ -150,7 +150,7 @@ export function createSessionService(deps: SessionServiceDeps) {
 
   /** Identities this learner met in other sessions of the same skill (same tenant only). */
   async function seenIdentities(
-    tx: Tx,
+    tx: Tx | Database,
     session: Pick<SessionRow, 'id' | 'tenantId' | 'learnerId' | 'skillKey'>,
   ) {
     const rows = await tx
@@ -222,6 +222,27 @@ export function createSessionService(deps: SessionServiceDeps) {
       created_at: session.createdAt.toISOString(),
       completed_at: session.completedAt?.toISOString() ?? null,
       ...(token ? { url: `${deps.sessionPageUrl}#${token}` } : {}),
+    };
+  }
+
+  /** Earlier submission with the same client_event_id, answered with the current view. */
+  async function findDuplicate(
+    tx: Tx | Database,
+    session: SessionRow,
+    runtime: PackageRuntime,
+    clientEventId: string,
+  ) {
+    const [dup] = await tx
+      .select({ seq: sessionEvents.seq })
+      .from(sessionEvents)
+      .where(and(eq(sessionEvents.sessionId, session.id), eq(sessionEvents.clientEventId, clientEventId)));
+    if (!dup) return null;
+    const state = replay(await loadLog(tx, session.id));
+    return {
+      duplicate: true,
+      accepted_seq: dup.seq,
+      session: describe(session),
+      view: learnerView({ runtime }, state),
     };
   }
 
@@ -323,85 +344,94 @@ export function createSessionService(deps: SessionServiceDeps) {
     },
 
     /** Applies a learner action atomically: lock, replay, validate, append, project. */
+    /**
+     * Applies a learner action. The engine (and any model it consults) runs without holding a lock; the
+     * result is then committed under a row lock only if the session did not change meanwhile, otherwise it
+     * is recomputed. A slow model therefore never blocks the database or other requests.
+     */
     async submit(sessionId: string, action: LearnerAction, clientEventId?: string) {
-      return db.transaction(async (tx) => {
-        const [session] = await tx.select().from(sessions).where(eq(sessions.id, sessionId)).for('update');
-        if (!session) throw new ApiError(404, 'not_found', 'No such session.');
-        const runtime = await packageOf(tx, session);
-        if (clientEventId) {
-          const [dup] = await tx
-            .select({ seq: sessionEvents.seq })
-            .from(sessionEvents)
-            .where(
-              and(eq(sessionEvents.sessionId, session.id), eq(sessionEvents.clientEventId, clientEventId)),
-            );
-          if (dup) {
-            const state = replay(await loadLog(tx, session.id));
-            return {
-              duplicate: true,
-              accepted_seq: dup.seq,
-              session: describe(session),
-              view: learnerView({ runtime }, state),
-            };
-          }
-        }
-        const log = await loadLog(tx, session.id);
+      for (let round = 0; round < 3; round++) {
+        const [snapshot] = await db.select().from(sessions).where(eq(sessions.id, sessionId));
+        if (!snapshot) throw new ApiError(404, 'not_found', 'No such session.');
+        const runtime = await packageOf(db, snapshot);
+        const duplicate = clientEventId ? await findDuplicate(db, snapshot, runtime, clientEventId) : null;
+        if (duplicate) return duplicate;
+        const log = await loadLog(db, snapshot.id);
+        if ((log.at(-1)?.seq ?? 0) !== snapshot.lastSeq) continue; // a write landed between the two reads
         const at = now();
-        const ctx = {
-          runtime,
-          policy: policyFor(session.policy),
-          now: at,
-          seenIdentities: await seenIdentities(tx, session),
-        };
         let result: Awaited<ReturnType<typeof handleAction>>;
         try {
-          result = await handleAction(ctx, log, action);
+          result = await handleAction(
+            {
+              runtime,
+              policy: policyFor(snapshot.policy),
+              now: at,
+              seenIdentities: await seenIdentities(db, snapshot),
+            },
+            log,
+            action,
+          );
         } catch (error) {
           if (error instanceof SessionActionError)
             throw new ApiError(error.statusCode, error.code, error.message);
           throw error;
         }
-        const learnerSeq = session.lastSeq + 1;
-        await tx.insert(sessionEvents).values([
-          {
-            sessionId: session.id,
-            seq: learnerSeq,
-            actor: 'learner',
-            type: action.type,
-            payload: action,
-            clientEventId: clientEventId ?? null,
-            createdAt: at,
-          },
-          ...result.events.map((event, i) => ({
-            sessionId: session.id,
-            seq: learnerSeq + 1 + i,
-            actor: 'engine',
-            type: event.type,
-            payload: event,
-            createdAt: at,
-          })),
-        ]);
-        await recordModelCalls(tx, session, learnerSeq + 1, result.events, at);
-        const state = result.state;
-        const [updated] = await tx
-          .update(sessions)
-          .set({
-            status: state.status,
-            phase: state.phase,
-            lastSeq: learnerSeq + result.events.length,
-            updatedAt: at,
-            completedAt: state.completed_at ? new Date(state.completed_at) : null,
-          })
-          .where(eq(sessions.id, session.id))
-          .returning();
-        await syncObservations(tx, updated!, state);
-        return {
-          duplicate: false,
-          accepted_seq: learnerSeq,
-          session: describe(updated!),
-          view: learnerView({ runtime }, state),
-        };
-      });
+
+        const committed = await db.transaction(async (tx) => {
+          const [session] = await tx.select().from(sessions).where(eq(sessions.id, sessionId)).for('update');
+          if (clientEventId) {
+            const dup = await findDuplicate(tx, session!, runtime, clientEventId);
+            if (dup) return dup;
+          }
+          if (session!.lastSeq !== snapshot.lastSeq) return null; // stale: recompute on the fresh log
+          const learnerSeq = session!.lastSeq + 1;
+          await tx.insert(sessionEvents).values([
+            {
+              sessionId: session!.id,
+              seq: learnerSeq,
+              actor: 'learner',
+              type: action.type,
+              payload: action,
+              clientEventId: clientEventId ?? null,
+              createdAt: at,
+            },
+            ...result.events.map((event, i) => ({
+              sessionId: session!.id,
+              seq: learnerSeq + 1 + i,
+              actor: 'engine',
+              type: event.type,
+              payload: event,
+              createdAt: at,
+            })),
+          ]);
+          await recordModelCalls(tx, session!, learnerSeq + 1, result.events, at);
+          const state = result.state;
+          const [updated] = await tx
+            .update(sessions)
+            .set({
+              status: state.status,
+              phase: state.phase,
+              lastSeq: learnerSeq + result.events.length,
+              updatedAt: at,
+              completedAt: state.completed_at ? new Date(state.completed_at) : null,
+            })
+            .where(eq(sessions.id, session!.id))
+            .returning();
+          await syncObservations(tx, updated!, state);
+          return {
+            duplicate: false,
+            accepted_seq: learnerSeq,
+            session: describe(updated!),
+            view: learnerView({ runtime }, state),
+          };
+        });
+        if (committed) return committed;
+      }
+      throw new ApiError(
+        409,
+        'session_busy',
+        'The session kept changing while this action was processed; retry.',
+      );
     },
 
     async view(session: SessionRow) {

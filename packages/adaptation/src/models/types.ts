@@ -45,12 +45,36 @@ export class ModelError extends Error {
   }
 }
 
-/** Fetch with a hard deadline; aborts the request when it passes. */
-export async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+/**
+ * POST JSON with one hard deadline covering the whole exchange, body included: a provider that sends headers
+ * and then stalls still times out. Body decoding failures are reported, not swallowed.
+ */
+export async function postJson(
+  url: string,
+  init: { headers: Record<string, string>; body: string },
+  timeoutMs: number,
+): Promise<{ status: number; ok: boolean; body: unknown; latency_ms: number }> {
+  const started = Date.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetch(url, { ...init, signal: controller.signal });
+    const res = await fetch(url, { method: 'POST', ...init, signal: controller.signal });
+    const text = await res.text();
+    let body: unknown;
+    try {
+      body = text ? JSON.parse(text) : {};
+    } catch {
+      throw new ModelError('http_error', `HTTP ${res.status}: response is not JSON`, Date.now() - started);
+    }
+    return { status: res.status, ok: res.ok, body, latency_ms: Date.now() - started };
+  } catch (error) {
+    if (error instanceof ModelError) throw error;
+    const aborted = (error as Error).name === 'AbortError' || controller.signal.aborted;
+    throw new ModelError(
+      aborted ? 'timeout' : 'http_error',
+      aborted ? 'deadline exceeded' : (error as Error).message.slice(0, 200),
+      Date.now() - started,
+    );
   } finally {
     clearTimeout(timer);
   }

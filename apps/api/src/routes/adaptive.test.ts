@@ -27,10 +27,10 @@ const flaky: DecisionModel = {
         intervention: user.candidates.find((c: { id: string }) => c.id === 'contrast')
           ? 'contrast'
           : user.candidates[1].id,
-        hypothesis: 'Took the remaining part instead of the asked part.',
+        confusion_id: 'took-the-rest',
+        interpretation: 'Marked the part left over.',
         rationale: 'Comparing both parts makes the asked one clear.',
         evidence_seqs: [user.evidence.at(-1).seq],
-        bridge: '',
       }),
       latency_ms: 1400,
       input_tokens: 900,

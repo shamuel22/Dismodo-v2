@@ -51,9 +51,9 @@ const decide = (d: Partial<Record<string, unknown>> & { evidence?: 'all' }) => (
   return JSON.stringify({
     action: 'intervene',
     intervention: 'contrast',
-    hypothesis: 'Took the remaining part instead of the asked part.',
+    confusion_id: 'took-the-rest',
+    interpretation: 'Marked the three groups that were left instead of the one group asked for.',
     rationale: 'Comparing the two parts side by side should make the asked part clear.',
-    bridge: '',
     ...d,
     evidence_seqs: seqs,
   });
@@ -131,7 +131,8 @@ describe('adaptive policy', () => {
       'spark',
       decide({
         intervention: 'worked-example',
-        hypothesis: '',
+        confusion_id: 'none',
+        interpretation: '',
         rationale: 'A worked example can confirm the method.',
       }),
     );
@@ -148,13 +149,8 @@ describe('adaptive policy', () => {
     });
   });
 
-  it('applies a valid model decision with its bridge sentence and full trace', async () => {
-    const routine = scripted('spark', (req) => {
-      const user = JSON.parse(req.user);
-      const total = (user.evidence.at(-1).task.match(/\d+/) ?? ['0'])[0];
-      const picked = user.evidence.at(-1).learner_answer_count;
-      return decide({ bridge: `You marked ${picked} of ${total}: that is the part left over.` })(req);
-    });
+  it('applies a valid model decision with reviewed learner text and a full trace', async () => {
+    const routine = scripted('spark', decide({}));
     const s = new Session(createModelPolicy({ routine: tier(routine) }));
     await s.throughBaseline();
     await s.answer('rest');
@@ -164,14 +160,15 @@ describe('adaptive policy', () => {
       intervention: 'contrast',
       decision: {
         source: 'model',
+        // Learners see the package's reviewed description; the model's own words stay in the trace.
+        hypothesis: 'Marks the part that is left over instead of the asked part.',
+        hypothesis_id: 'took-the-rest',
+        model_interpretation: 'Marked the three groups that were left instead of the one group asked for.',
         model: { provider: 'test', model: 'spark', tier: 'routine', latency_ms: 42 },
         escalation_reason: null,
         attempts: [{ status: 'ok', tier: 'routine', input_tokens: 100 }],
       },
     });
-    expect(intervention!.explanation?.bridge).toMatch(
-      /^You marked \d+ of \d+: that is the part left over\.$/,
-    );
     // The model only saw candidates the controller would accept.
     const user = JSON.parse(routine.calls[0]!.user);
     expect(user.candidates.map((c: { id: string }) => c.id)).toEqual([
@@ -185,23 +182,11 @@ describe('adaptive policy', () => {
     expect(routine.calls[0]!.user).not.toMatch(/template_values|part_size|"spec"/);
   });
 
-  it('drops a bridge with numbers that are not in the item but keeps the decision', async () => {
-    const routine = scripted('spark', decide({ bridge: 'You marked 999 items.' }));
-    const s = new Session(createModelPolicy({ routine: tier(routine) }));
-    await s.throughBaseline();
-    await s.answer('rest');
-    await s.act({ type: 'continue' });
-    const [intervention] = s.state.interventions;
-    expect(intervention!.explanation?.bridge).toBeNull();
-    expect(intervention!.decision).toMatchObject({
-      source: 'model',
-      fallback_reason: 'bridge dropped: uses numbers not in the item (999)',
-    });
-  });
-
   it.each([
     ['an intervention outside the candidates', decide({ intervention: 'analogy' }), /not a candidate/],
-    ['a label about the person', decide({ hypothesis: 'They are a visual learner.' }), /visual learner/],
+    ['a label about the person', decide({ interpretation: 'They are a visual learner.' }), /visual learner/],
+    ['a judgement of ability', decide({ interpretation: 'You have low intelligence.' }), /intelligence/],
+    ['a confusion the package does not define', decide({ confusion_id: 'made-up' }), /not a known confusion/],
     ['evidence that was not provided', decide({ evidence_seqs: [9999] }), /not provided/],
     ['output that is not a decision', () => '{"hello":1}', /schema/],
   ])('rejects %s and falls back to the editorial route', async (_label, reply, reason) => {
@@ -249,7 +234,7 @@ describe('adaptive policy', () => {
   it('escalates after the learner rejects a hypothesis, and passes their note as data', async () => {
     const critical = scripted(
       'wonder',
-      decide({ intervention: 'worked-example', hypothesis: 'Miscounted while marking.', evidence: 'all' }),
+      decide({ intervention: 'worked-example', confusion_id: 'counting-slip', evidence: 'all' }),
     );
     const routine = scripted('spark', decide({}));
     const s = new Session(createModelPolicy({ routine: tier(routine), critical: tier(critical) }));
@@ -282,10 +267,10 @@ describe('adaptive policy', () => {
       JSON.stringify({
         action: 'continue',
         intervention: 'none',
-        hypothesis: '',
+        confusion_id: 'counting-slip',
+        interpretation: 'One more than a quarter: a counting slip.',
         rationale: 'A slip; try the next one.',
         evidence_seqs: [],
-        bridge: '',
       }),
     );
     const s = new Session(createModelPolicy({ routine: tier(routine) }));
@@ -306,6 +291,56 @@ describe('adaptive policy', () => {
       fallback_reason: 'No decision model is configured.',
       attempts: [],
     });
+  });
+
+  it('limits critical consultations per session', async () => {
+    const critical = scripted('wonder', (req) =>
+      decide({ intervention: JSON.parse(req.user).candidates[1].id, evidence: 'all' })(req),
+    );
+    const routine = scripted('spark', (req) =>
+      decide({ intervention: JSON.parse(req.user).candidates[1].id, evidence: 'all' })(req),
+    );
+    const s = new Session(
+      createModelPolicy({ routine: tier(routine), critical: tier(critical), maxCriticalPerSession: 1 }),
+    );
+    await s.throughBaseline();
+    for (let i = 0; i < 3; i++) {
+      await s.answer('rest');
+      await s.act({ type: 'continue' });
+      if (s.state.current.kind === 'explanation') await s.act({ type: 'continue' });
+    }
+    expect(critical.calls).toHaveLength(1);
+  });
+
+  it('does not call a model when no intervention is left to offer', async () => {
+    const routine = scripted('spark', decide({}));
+    const s = new Session(createModelPolicy({ routine: tier(routine) }));
+    await s.act({ type: 'energy_check', level: 'ok' });
+    // Exhaust max_interventions (3) with the editorial route, then check no further model call happens.
+    const exhausted = buildRuntime(
+      { ...structuredClone(demo), session_policy: { ...demo.session_policy, max_interventions: 0 } },
+      builtinRegistry,
+    );
+    const state = s.state;
+    const item = itemById(state, 'i1')!;
+    const decision = await createModelPolicy({ routine: tier(routine) }).afterEvaluation({
+      runtime: exhausted,
+      state,
+      item: {
+        ...item,
+        answer: {
+          seq: 9,
+          at: '',
+          response: null,
+          correct: false,
+          error_code: 'selected_complement',
+          alternative_codes: [],
+          feedback: '',
+        },
+      },
+    });
+    expect(decision).toEqual({ kind: 'continue' });
+    expect(routine.calls).toHaveLength(0);
   });
 
   it('builds prompts that list only usable interventions', () => {
@@ -395,6 +430,31 @@ describe('model adapters', () => {
     );
     const model = openAICompatibleModel({ provider: 'meta', baseUrl: 'https://x', apiKey: 'k', model: 'm' });
     await expect(model.complete({ ...request, timeoutMs: 20 })).rejects.toMatchObject({ status: 'timeout' });
+  });
+
+  it('keeps the deadline while the response body is still arriving', async () => {
+    vi.stubGlobal('fetch', (_url: string, init: RequestInit) => {
+      const body = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode('{"choices":'));
+          init.signal!.addEventListener('abort', () =>
+            controller.error(Object.assign(new Error('aborted'), { name: 'AbortError' })),
+          );
+        },
+      });
+      return Promise.resolve(new Response(body, { status: 200 }));
+    });
+    const model = openAICompatibleModel({ provider: 'meta', baseUrl: 'https://x', apiKey: 'k', model: 'm' });
+    await expect(model.complete({ ...request, timeoutMs: 30 })).rejects.toMatchObject({ status: 'timeout' });
+  });
+
+  it('reports a non-JSON body as an HTTP error with its latency', async () => {
+    vi.stubGlobal('fetch', async () => new Response('<html>bad gateway</html>', { status: 502 }));
+    const model = openAICompatibleModel({ provider: 'meta', baseUrl: 'https://x', apiKey: 'k', model: 'm' });
+    await expect(model.complete(request)).rejects.toMatchObject({
+      status: 'http_error',
+      message: 'HTTP 502: response is not JSON',
+    });
   });
 
   it('reads a forced tool call from the Anthropic Messages API', async () => {

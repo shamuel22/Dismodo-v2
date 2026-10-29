@@ -133,9 +133,14 @@ export function buildReport(state: SessionState, independentTarget: number): Ses
     }
   }
 
-  const interpretation = state.interventions
-    .filter((i) => i.decision.hypothesis)
-    .map((i) => ({ text: `Provisional: ${i.decision.hypothesis}`, source: i.decision.source }));
+  const interpretation: SessionReport['statements']['interpretation'] = [];
+  for (const d of [...state.interventions, ...state.decisions].sort((a, b) => a.seq - b.seq)) {
+    if (d.decision.hypothesis)
+      interpretation.push({ text: `Provisional: ${d.decision.hypothesis}`, source: d.decision.source });
+    if (d.decision.model_interpretation) {
+      interpretation.push({ text: `Model reading: ${d.decision.model_interpretation}`, source: 'model' });
+    }
+  }
 
   const notYetChecked = ['Retention over time (delayed check not measured).'];
   if (independent.length < independentTarget) notYetChecked.push('The independent check was not completed.');

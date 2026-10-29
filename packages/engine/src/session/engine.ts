@@ -240,20 +240,32 @@ async function maybeIntervene(ctx: EngineContext, em: Emitter, item: ItemRecord)
     fallbackReason = `Policy failed: ${(error as Error).message}`;
     decision = { kind: 'continue' };
   }
+
   if (fallbackReason !== null) {
-    const attempts = 'decision' in decision ? decision.decision?.attempts : undefined;
-    decision = await editorialPolicy.afterEvaluation(input);
-    if (attempts && decision.kind === 'intervene') {
-      decision = { ...decision, decision: { ...decision.decision, attempts } };
-    }
-    if (decision.kind === 'intervene') {
-      if (!checkProposal(ctx.runtime, em.state, decision.intervention).ok) return false;
-      decision = {
-        ...decision,
-        decision: { ...decision.decision, source: 'fallback', fallback_reason: fallbackReason },
-      };
-    }
+    // Keep the model calls already made; the one whose proposal the controller refused is marked so.
+    const attempts = (decision.decision?.attempts ?? []).map((a, i, all) =>
+      i === all.length - 1 && a.status === 'ok' && decision.kind === 'intervene'
+        ? { ...a, status: 'rejected' as const, error: fallbackReason! }
+        : a,
+    );
+    const editorial = await editorialPolicy.afterEvaluation(input);
+    const usable =
+      editorial.kind === 'intervene' && checkProposal(ctx.runtime, em.state, editorial.intervention).ok;
+    const record = {
+      ...(editorial.kind === 'intervene' ? editorial.decision : {}),
+      source: 'fallback' as const,
+      rationale: editorial.decision?.rationale ?? 'Continuing with the reviewed route.',
+      hypothesis: usable ? (editorial.decision?.hypothesis ?? null) : null,
+      evidence_seqs: editorial.decision?.evidence_seqs ?? [item.presented_seq],
+      fallback_reason: fallbackReason,
+      attempts,
+    };
+    decision =
+      usable && editorial.kind === 'intervene'
+        ? { kind: 'intervene', intervention: editorial.intervention, decision: record }
+        : { kind: 'continue', decision: record };
   }
+
   if (decision.kind !== 'intervene') {
     if (decision.decision)
       em.emit({ type: 'decision_recorded', outcome: 'continue', decision: decision.decision });
@@ -262,7 +274,7 @@ async function maybeIntervene(ctx: EngineContext, em: Emitter, item: ItemRecord)
   em.emit({
     type: 'intervention_started',
     intervention: decision.intervention,
-    explanation: renderExplanation(ctx.runtime, decision.intervention, item, decision.bridge),
+    explanation: renderExplanation(ctx.runtime, decision.intervention, item),
     decision: decision.decision,
   });
   return em.state.current.kind === 'explanation';

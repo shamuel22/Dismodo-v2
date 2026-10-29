@@ -330,6 +330,82 @@ describe('controller and fallback', () => {
   });
 });
 
+describe('traces survive controller fallbacks', () => {
+  it('records model attempts, marking the refused one, when no support can be given', async () => {
+    const strict = buildRuntime(
+      { ...structuredClone(demo), session_policy: { ...demo.session_policy, max_interventions: 0 } },
+      builtinRegistry,
+    );
+    const proposing: AdaptationPolicy = {
+      name: 'adaptive',
+      afterEvaluation: async () => ({
+        kind: 'intervene',
+        intervention: 'contrast',
+        decision: {
+          source: 'model',
+          rationale: 'x',
+          hypothesis: null,
+          evidence_seqs: [],
+          attempts: [
+            {
+              provider: 'p',
+              model: 'm',
+              tier: 'routine',
+              status: 'ok',
+              latency_ms: 5,
+              input_tokens: 1,
+              output_tokens: 1,
+              reasoning_tokens: null,
+            },
+          ],
+        },
+      }),
+    };
+    const at = new Date(T0).toISOString();
+    const ctx: EngineContext = { runtime: strict, policy: proposing, now: new Date(T0) };
+    const log: SessionEvent[] = startSession(ctx, {
+      experienceRef: 'x@1.0.0',
+      contentHash: 'h',
+      policy: 'adaptive',
+      seed: 1,
+      declared: {},
+    }).map((event, i) => ({ seq: i + 1, at, actor: 'engine', event }));
+    const item = replay(log).current as { item_id: string };
+    const answered = await handleAction(ctx, log, {
+      type: 'answer',
+      item_id: item.item_id,
+      response: { selected: ['e1'] },
+    });
+    const next = [
+      ...log,
+      {
+        seq: log.length + 1,
+        at,
+        actor: 'learner' as const,
+        action: { type: 'answer' as const, item_id: item.item_id, response: { selected: ['e1'] } },
+      },
+      ...answered.events.map((event, i) => ({
+        seq: log.length + 2 + i,
+        at,
+        actor: 'engine' as const,
+        event,
+      })),
+    ];
+    const { events } = await handleAction(ctx, next, { type: 'continue' });
+    const recorded = events.find((e) => e.type === 'decision_recorded');
+    expect(recorded).toMatchObject({
+      outcome: 'continue',
+      decision: {
+        source: 'fallback',
+        fallback_reason: 'Proposal rejected: The session reached max_interventions.',
+        attempts: [
+          { status: 'rejected', error: 'Proposal rejected: The session reached max_interventions.' },
+        ],
+      },
+    });
+  });
+});
+
 describe('guards', () => {
   it('rejects actions that do not fit the session state', async () => {
     const d = new Driver();
