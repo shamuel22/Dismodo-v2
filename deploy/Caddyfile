@@ -35,6 +35,10 @@
 	# e.g.:  @pages path / /s/* /docs/*
 	#         header @pages Content-Security-Policy "frame-ancestors 'self'"
 
+	# Behind the tunnel Cloudflare reports the visitor's scheme; plain http goes to https.
+	@plain_http header X-Forwarded-Proto http
+	redir @plain_http https://{host}{uri} 308
+
 	handle /mcp {
 		reverse_proxy mcp:4200
 	}
