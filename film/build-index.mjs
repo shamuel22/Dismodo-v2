@@ -1,10 +1,10 @@
 // Writes index.html: scene hosts, voice lines, effects and the ducked music bed. Edit the tables, then rerun.
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const DURATION = 154;
+const DURATION = 157.5;
 const scenes = [
-  ['open', 0, 19.6], ['origin', 19.6, 37], ['reveal', 37, 51], ['package', 51, 66.5], ['practice', 66.5, 97],
-  ['proof', 97, 108], ['trace', 108, 118], ['acme', 118, 130], ['mcp', 130, 141], ['end', 141, DURATION],
+  ['open', 0, 19.6], ['origin', 19.6, 37], ['reveal', 37, 45.5], ['package', 45.5, 61], ['practice', 61, 91.5],
+  ['proof', 91.5, 102.5], ['trace', 102.5, 112.5], ['acme', 112.5, 124.5], ['mcp', 124.5, 135.5], ['end', 135.5, DURATION],
 ];
 const voice = { hook: 0.5, swap: 10.0, origin: 20.2, reveal: 38.8, package: 51.6, mistake: 67.0, wonder: 76.5,
   pushback: 90.4, proof: 97.5, trace: 108.6, acme: 118.8, mcp: 130.5, claim: 141.5 };
@@ -16,10 +16,13 @@ const sfx = [
 ];
 import { execFileSync } from 'node:child_process';
 const fileDuration = (f) => +Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).toString()).toFixed(2);
+const SHIFT = (t) => (t > 45 ? +(t - 5.5).toFixed(2) : t);
 const timings = JSON.parse(readFileSync('assets/vo/timings.json', 'utf8'));
 
 // Music: 0.45 in the clear, 0.17 under the voice.
 const points = [{ t: 0, v: 0.45 }];
+for (const id of Object.keys(voice)) voice[id] = SHIFT(voice[id]);
+for (const s of sfx) s[1] = SHIFT(s[1]);
 for (const [id, start] of Object.entries(voice)) {
   const end = start + timings[id].duration;
   points.push({ t: +(start - 0.4).toFixed(2), v: 0.45 }, { t: start, v: 0.17 }, { t: +(end + 0.2).toFixed(2), v: 0.17 }, { t: +(end + 0.9).toFixed(2), v: 0.45 });

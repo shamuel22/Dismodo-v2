@@ -19,6 +19,8 @@
     #end-right { clip-path: inset(-2px -2px -2px var(--spine)); }
     #end-mask { position: absolute; top: calc((var(--S) - var(--word-h)) / 2); left: var(--spine); right: 0; height: var(--word-h); overflow: hidden; z-index: 1; }
     #end-word { left: calc(var(--sym-w) - var(--spine) + var(--gap)); top: 0; width: var(--word-w); height: var(--word-h); background-position: calc(var(--unit) * -554) calc(var(--unit) * -286); }
+    #end-quote { position: absolute; left: 330px; width: 1260px; top: 360px; text-align: center; font: 400 46px/1.7 Inter, sans-serif; color: #F3F0E9; }
+    #end-by { margin-top: 30px; font: 400 32px/1.4 Inter, sans-serif; color: #AAA8AD; }
     #end-cta { position: absolute; left: 0; right: 0; top: 540px; text-align: center; }
     #end-url { display: inline-block; padding: 20px 34px; border-radius: 12px; background: #D7FF7F; color: #141517; font: 500 34px/1.2 'JetBrains Mono', monospace; }
     #end-meta { margin-top: 44px; font: 400 30px/1.6 Inter, sans-serif; color: #AAA8AD; }
@@ -30,11 +32,13 @@
       <span data-hf-id="hf-an19" class="w">DISMODO</span> <span data-hf-id="hf-il0n" class="w accent">adapts</span> <span data-hf-id="hf-rd7k" class="w">how.</span><br data-hf-id="hf-rsrt" />
       <span data-hf-id="hf-ml88" class="w soft">And shows its work.</span>
     </div></div>
+    <div id="end-quote" class="clip" data-start="6.3" data-duration="8.6"><div id="end-quote-in"><span id="end-typed"></span>
+      <div id="end-by">— Shamuel Perez, founder</div></div></div>
     <div data-hf-id="hf-iz10" id="end-brand">
       <div data-hf-id="hf-vv62" id="end-book"><span data-hf-id="hf-1so6" id="end-left" class="end-atlas end-page"></span><span data-hf-id="hf-e1j1" id="end-right" class="end-atlas end-page"></span></div>
       <div data-hf-id="hf-lfv1" id="end-mask"><span data-hf-id="hf-jjr8" id="end-word" class="end-atlas"></span></div>
     </div>
-    <div data-hf-id="hf-yprc" id="end-cta" class="clip" data-start="7.6" data-duration="5.4"><div data-hf-id="hf-ynwz" id="end-cta-in">
+    <div data-hf-id="hf-yprc" id="end-cta" class="clip" data-start="16.2" data-duration="5.8"><div data-hf-id="hf-ynwz" id="end-cta-in">
       <span data-hf-id="hf-poag" id="end-url">github.com/shamuel22/Dismodo-v2</span>
       <div data-hf-id="hf-qidj" id="end-meta">API · SDK · MCP · <b data-hf-id="hf-oypa">Muse Spark</b> and <b data-hf-id="hf-7pu6">Muse Wonder</b> inside · built with <b data-hf-id="hf-cac8">Muse Code</b></div>
     </div></div>
@@ -46,15 +50,22 @@
     [0.5, 0.9, 1.4, 1.6, 1.7, 2.6, 3.2, 3.6, 4.5].forEach((t, i) => tl.to(words[i], { opacity: 1, filter: 'blur(0px)', duration: 0.14, ease: 'power4.out' }, t));
     tl.to('#end-claim-in', { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 5.95);
     // The mark is performed, not faded: the book opens and the name emerges from its spine.
-    const unit = 120 / 340, T0 = 6.3;
+    // The founder's phrase, typed once, as on the landing page.
+    const phrase = "The best learning methodology is the one that adapts to the context, the learning objective, the available resources and the learners' profile.";
+    const typed = { n: 0 };
+    tl.fromTo(typed, { n: 0 }, { n: phrase.length, duration: 4.6, ease: 'none',
+      onUpdate: () => { document.querySelector('#end-typed').textContent = phrase.slice(0, Math.round(typed.n)); } }, 6.5);
+    tl.fromTo('#end-by', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 11.3);
+    tl.to('#end-quote-in', { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 14.6);
+    const unit = 120 / 340, T0 = 14.95;
     const bookStart = ((327 + 1465) * unit + 28 - 327 * unit) / 2;
     tl.set('#end-brand', { opacity: 1 }, 0);
     tl.fromTo('#end-left', { rotateY: 83, opacity: 0 }, { rotateY: 0, opacity: 1, duration: 0.95, ease: 'expo.out' }, T0);
     tl.fromTo('#end-right', { rotateY: -83, opacity: 0 }, { rotateY: 0, opacity: 1, duration: 0.95, ease: 'expo.out' }, T0);
     tl.fromTo('#end-book', { x: bookStart }, { x: 0, duration: 1.19, ease: 'expo.out' }, T0 + 0.51);
     tl.fromTo('#end-word', { xPercent: -108, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 1.05, ease: 'expo.out' }, T0 + 0.65);
-    tl.fromTo('#end-url', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 7.7);
-    tl.fromTo('#end-meta', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 8.2);
+    tl.fromTo('#end-url', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 16.3);
+    tl.fromTo('#end-meta', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 16.8);
     window.__timelines['end'] = tl;
   </script>
 </template>

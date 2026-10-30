@@ -1,79 +1,131 @@
 <template>
   <style>
     @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
-    #root { position: absolute; inset: 0; overflow: hidden; background: #141517; }
-    #open-cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
-    #open-cam img { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
-    .open-cell { clip-path: inset(var(--t) var(--r) var(--b) var(--l)); }
-    #open-cursor { position: absolute; left: 0; top: 0; width: 64px; height: 64px; z-index: 5; }
-    #open-title { position: absolute; left: 1180px; top: 400px; width: 680px; z-index: 4;
-      font: 500 84px/1.12 'Space Grotesk', sans-serif; letter-spacing: -0.02em; color: #F3F0E9; }
-    #open-title .w { display: inline-block; }
-    #open-title-in { display: block; }
-    #open-title .accent { color: #D7FF7F; }
-    #open-title .line2 { color: #AAA8AD; }
+    #root { position: absolute; inset: 0; overflow: hidden;
+      background: radial-gradient(ellipse at 50% 42%, rgba(91, 72, 116, 0.14), transparent 64%), #141517; }
+    /* Act 1: the line, and a path that meets a step too tall. */
+    #op-a { position: absolute; left: 0; right: 0; top: 230px; text-align: center; }
+    #op-a .l1 { font: 500 112px/1.08 'Space Grotesk', sans-serif; letter-spacing: -0.03em; color: #F3F0E9; }
+    #op-a .l2 { margin-top: 30px; font: 400 46px/1.3 Inter, sans-serif; color: #AAA8AD; }
+    #op-a .w { display: inline-block; }
+    #op-path { position: absolute; left: 460px; top: 640px; width: 1000px; height: 260px; overflow: visible; }
+    /* Act 2: the idea (one quarter) and the example around it. */
+    #op-stage { position: absolute; left: 660px; top: 190px; width: 600px; height: 600px; }
+    #op-pie { position: absolute; left: 150px; top: 150px; width: 300px; height: 300px; overflow: visible; }
+    .ic { position: absolute; width: 68px; height: 68px; perspective: 400px; }
+    .ic svg { position: absolute; inset: 0; width: 68px; height: 68px; fill: none; stroke: #AAA8AD; stroke-width: 1.6;
+      stroke-linecap: round; stroke-linejoin: round; backface-visibility: hidden; }
+    .ic.hi svg { stroke: #D7FF7F; stroke-width: 2; }
+    .op-label { position: absolute; top: 455px; font: 400 38px/1.3 Inter, sans-serif; color: #AAA8AD; white-space: nowrap; }
+    #op-l-idea { right: 1290px; text-align: right; }
+    #op-l-ex { left: 1290px; }
+    #op-l-ex .q { color: #B39CFF; }
+    #op-l-ex b { font-weight: 400; color: #F3F0E9; }
+    #op-l-ex span { position: absolute; left: 0; top: 0; }
+    #op-ripple { position: absolute; left: 1201px; top: 490px; width: 90px; height: 90px; border-radius: 50%;
+      border: 4px solid #D7FF7F; opacity: 0; }
+    /* Act 3: the title beside the same idea. */
+    #op-title { position: absolute; left: 1060px; top: 380px; width: 780px; font: 500 92px/1.12 'Space Grotesk', sans-serif;
+      letter-spacing: -0.025em; color: #F3F0E9; }
+    #op-title .w { display: inline-block; }
+    #op-title .accent { color: #D7FF7F; }
+    #op-title .line2 { color: #AAA8AD; }
   </style>
-  <div data-hf-id="hf-wbpn" id="root" data-composition-id="open" data-width="1920" data-height="1080">
-    <div data-hf-id="hf-0wtn" id="open-cam">
-      <img data-hf-id="hf-yw4a" id="open-p1" src="assets/ui/01-item-unfamiliar.png" alt="" />
-      <img data-hf-id="hf-7fu3" id="open-p2" src="assets/ui/02-item-swapped.png" alt="" style="opacity:0" />
-      <img data-hf-id="hf-8oem" class="open-cell" id="open-c0" src="assets/ui/03-item-right.png" alt="" style="opacity:0;--l:657px;--t:398px;--r:1184px;--b:603px" />
-      <img data-hf-id="hf-p8y3" class="open-cell" id="open-c1" src="assets/ui/03-item-right.png" alt="" style="opacity:0;--l:744px;--t:398px;--r:1097px;--b:603px" />
-      <img data-hf-id="hf-ekfa" class="open-cell" id="open-c2" src="assets/ui/03-item-right.png" alt="" style="opacity:0;--l:830px;--t:398px;--r:1011px;--b:603px" />
-      <img data-hf-id="hf-xj97" class="open-cell" id="open-c3" src="assets/ui/03-item-right.png" alt="" style="opacity:0;--l:917px;--t:398px;--r:924px;--b:603px" />
-      <img data-hf-id="hf-m99c" class="open-cell" id="open-c4" src="assets/ui/03-item-right.png" alt="" style="opacity:0;--l:1005px;--t:398px;--r:839px;--b:603px" />
-      <img data-hf-id="hf-zgbf" id="open-p3" src="assets/ui/03-item-right.png" alt="" style="opacity:0" />
-    </div>
-    <svg data-hf-id="hf-devl" id="open-cursor" viewBox="0 0 32 32" aria-hidden="true">
-      <path data-hf-id="hf-bcjt" d="M6 3 L6 25 L11.5 19.8 L15.2 28.2 L19 26.6 L15.4 18.4 L23 18.4 Z" fill="#F3F0E9" stroke="#141517" stroke-width="1.6" stroke-linejoin="round" />
+  <div id="root" data-composition-id="open" data-width="1920" data-height="1080">
+    <div id="op-a" class="clip" data-start="0" data-duration="5.0"><div id="op-a-in">
+      <div class="l1"><span class="w">Learning</span> <span class="w">something</span> <span class="w">new</span><br /><span class="w">can</span> <span class="w">be</span> <span class="w">hard.</span></div>
+      <div class="l2"><span class="w">Even</span> <span class="w">when</span> <span class="w">you</span> <span class="w">want</span> <span class="w">to.</span></div>
+    </div></div>
+    <svg id="op-path" class="clip" data-start="0" data-duration="5.0" viewBox="0 0 1000 260" aria-hidden="true">
+      <path id="op-track" d="M0 230 H420 V40 H1000" fill="none" stroke="rgba(243,240,233,0.28)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <circle id="op-dot" cx="0" cy="214" r="16" fill="#D7FF7F" />
     </svg>
-    <h1 data-hf-id="hf-ugjp" id="open-title" class="clip" data-start="14.6" data-duration="5"><span data-hf-id="hf-0f75" id="open-title-in">
-      <span data-hf-id="hf-ys6r" class="w">The</span> <span data-hf-id="hf-ou8m" class="w">example</span> <span data-hf-id="hf-0psw" class="w accent">changed.</span><br data-hf-id="hf-x5px" />
-      <span data-hf-id="hf-w5lb" class="line2"><span data-hf-id="hf-1vo3" class="w">The</span> <span data-hf-id="hf-nl0r" class="w">goal</span> <span data-hf-id="hf-f97c" class="w">didn't.</span></span></span>
+    <div id="op-stage">
+      <svg id="op-pie" viewBox="0 0 300 300" aria-hidden="true">
+        <circle id="op-pie-ring" cx="150" cy="150" r="140" fill="none" stroke="rgba(243,240,233,0.45)" stroke-width="3" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110" />
+        <path id="op-pie-cuts" d="M150 10 V290 M10 150 H290" stroke="rgba(243,240,233,0.25)" stroke-width="3" />
+        <path id="op-pie-q" d="M150 150 L150 10 A140 140 0 0 1 290 150 Z" fill="#D7FF7F" />
+      </svg>
+      <div id="op-icons">
+          <div class="ic hi" style="left:311px;top:-20px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic hi" style="left:398px;top:8px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic hi" style="left:471px;top:61px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic hi" style="left:524px;top:134px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic hi" style="left:552px;top:221px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:552px;top:311px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:524px;top:398px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:471px;top:471px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:398px;top:524px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:311px;top:552px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:221px;top:552px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:134px;top:524px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:61px;top:471px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:8px;top:398px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:-20px;top:311px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:-20px;top:221px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:8px;top:134px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:61px;top:61px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:134px;top:8px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <div class="ic" style="left:221px;top:-20px"><svg class="ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M11 7a16 16 20 0 1 10.98 4.362"/><path d="M12 12a13 13 0 0 1-8.66 5"/><path d="M16.83 13.634a16 16 0 0 1-9.267 7.328"/><path d="M20.66 17A13 13 0 0 0 12 12a13 13 0 0 1 0-10"/><path d="M8.17 15.366a16 16 0 0 1-1.713-11.69"/></svg><svg class="chk" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+      </div>
+    </div>
+    <div id="op-l-idea" class="op-label">the idea · <b style="font-weight:400;color:#F3F0E9">one quarter</b></div>
+    <div id="op-l-ex" class="op-label"><span id="op-ex1">the example</span><span id="op-ex2"><b>a season of matches</b> <span class="q" style="position:static">?</span></span><span id="op-ex3"><b>a project's tasks</b></span></div>
+    <div id="op-ripple"></div>
+    <h1 id="op-title" class="clip" data-start="14.6" data-duration="5"><span id="op-title-in" style="display:block">
+      <span class="w">The</span> <span class="w">example</span> <span class="w accent">changed.</span><br />
+      <span class="line2"><span class="w">The</span> <span class="w">goal</span> <span class="w">didn't.</span></span></span>
     </h1>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    // Camera: frame a point (cx, cy) of the 1920×1080 plate at scale s, centred on screen.
-    const cam = (cx, cy, s) => ({ x: 960 - s * cx, y: 540 - s * cy, scale: s });
-    // Screen position of a plate point for a camera state (for the cursor tip).
-    const at = (px, py, c) => ({ x: c.x + c.scale * px - 6, y: c.y + c.scale * py - 4 });
-    const A = cam(960, 262, 2.05); // the problem, read up close
-    const B = cam(959, 475, 1.5); // the whole card
-    const C = cam(959, 517, 1.42); // card plus the system note
-    const D = cam(1175, 520, 1.02); // card left, room for the title
-    // Read along the problem while the voice sets up the need.
-    tl.fromTo('#open-cam', cam(880, 262, 2.15), { ...cam(1010, 268, 2.05), duration: 4.5, ease: 'power1.inOut' }, 0);
-    tl.to('#open-cam', { ...B, duration: 1.1, ease: 'power2.inOut' }, 4.6);
-    // Cursor: enters from the lower right, rests on "I don't know this example", taps on "tap".
-    const btn = at(922, 738, B);
-    tl.fromTo('#open-cursor', { x: 1980, y: 1120 }, { x: btn.x, y: btn.y, duration: 1.1, ease: 'expo.out' }, 7.7);
-    tl.to('#open-cursor', { scale: 0.86, duration: 0.07, ease: 'power2.in' }, 10.26);
-    tl.to('#open-cursor', { scale: 1, duration: 0.12, ease: 'power2.out' }, 10.33);
-    // The tap swaps the problem into the work project: blur swap on the same stage, then reframe.
-    tl.to('#open-p1', { filter: 'blur(8px)', opacity: 0, duration: 0.15, ease: 'power2.in' }, 10.32);
-    tl.fromTo('#open-p2', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.15, ease: 'power2.out' }, 10.4);
-    tl.to('#open-cam', { ...C, duration: 0.7, ease: 'power2.inOut' }, 10.45);
-    tl.to('#open-cursor', { x: '+=40', y: '+=150', opacity: 0, duration: 0.35, ease: 'power3.in' }, 10.6);
-    // The learner marks five of twenty tasks, one tap each.
-    const cell = (i) => at(657 + 39 + 87 * i, 398 + 40, C);
-    tl.set('#open-cursor', { ...cell(0), y: cell(0).y + 220, opacity: 0 }, 11.3);
-    tl.to('#open-cursor', { ...cell(0), opacity: 1, duration: 0.45, ease: 'expo.out' }, 11.4);
-    for (let i = 0; i < 5; i++) {
-      const t = 12.0 + i * 0.32;
-      if (i) tl.to('#open-cursor', { ...cell(i), duration: 0.22, ease: 'power2.inOut' }, t - 0.24);
-      tl.to(`#open-c${i}`, { opacity: 1, duration: 0.06 }, t);
-    }
-    tl.to('#open-p3', { opacity: 1, duration: 0.12 }, 13.45);
-    tl.to('#open-cursor', { x: '+=60', y: '+=260', opacity: 0, duration: 0.35, ease: 'power3.in' }, 13.7);
-    // Pull back: the card moves left and the title lands on the ground beside it, word by word.
-    tl.to('#open-cam', { ...D, duration: 0.9, ease: 'power2.inOut' }, 14.0);
-    const words = gsap.utils.toArray('#open-title .w');
-    const wordAt = [14.8, 14.95, 15.5, 16.4, 16.6, 16.9];
-    tl.set(words, { opacity: 0, filter: 'blur(6px)' }, 0);
-    words.forEach((w, i) => tl.to(w, { opacity: 1, filter: 'blur(0px)', duration: 0.14, ease: 'power4.out' }, wordAt[i]));
-    // Leave: blur out into the next world.
-    tl.to(['#open-cam', '#open-title-in'], { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 19.33);
+    const inWord = (el, t, d = 0.14) => tl.to(el, { opacity: 1, filter: 'blur(0px)', duration: d, ease: 'power4.out' }, t);
+    // Act 1 — "Learning something new can be hard, even when you really want to."
+    const a = gsap.utils.toArray('#op-a .w');
+    // The first line is the thumbnail; the rest arrives with the voice.
+    tl.set(a.slice(3), { opacity: 0, filter: 'blur(6px)' }, 0);
+    [1.65, 1.8, 1.95, 2.8, 3.1, 3.3, 3.75, 4.0].forEach((t, i) => inWord(a[i + 3], t));
+    // The dot runs along the path and stops at the step it cannot climb ("hard").
+    tl.fromTo('#op-dot', { attr: { cx: 16 } }, { attr: { cx: 400 }, duration: 1.4, ease: 'power2.in' }, 0.5);
+    tl.to('#op-dot', { attr: { cx: 380 }, duration: 0.25, ease: 'power2.out' }, 1.9);
+    tl.to('#op-dot', { attr: { cx: 400 }, duration: 0.5, ease: 'power2.inOut' }, 2.6);
+    tl.to('#op-dot', { attr: { cx: 386 }, duration: 0.3, ease: 'power2.out' }, 3.1);
+    tl.to(['#op-a-in', '#op-path'], { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 4.6);
+    // Act 2 — "the problem isn't the idea": one quarter, drawn.
+    tl.set(['#op-pie-q', '#op-pie-cuts', '.op-label', '#op-ex2', '#op-ex3'], { opacity: 0 }, 0);
+    tl.set('.ic', { opacity: 0, scale: 0.4 }, 0);
+    tl.set('.ic .chk', { rotateY: -90 }, 0);
+    tl.to('#op-pie-ring', { strokeDashoffset: 0, duration: 0.7, ease: 'expo.out' }, 5.5);
+    tl.to('#op-pie-cuts', { opacity: 1, duration: 0.3 }, 5.9);
+    tl.fromTo('#op-pie-q', { opacity: 0, scale: 0.6, transformOrigin: '150px 150px' }, { opacity: 1, scale: 1, duration: 0.5, ease: 'expo.out' }, 6.6);
+    tl.fromTo('#op-l-idea', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 6.75);
+    // "It's the example": twenty matches around it, five of them won.
+    tl.to('.ic', { opacity: 1, scale: 1, duration: 0.4, stagger: 0.025, ease: 'expo.out' }, 7.7);
+    tl.fromTo('#op-l-ex', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 8.15);
+    // An unfamiliar reference: the example fades from reach.
+    tl.to('.ic:not(.hi)', { opacity: 0.35, duration: 0.4, ease: 'power2.out' }, 9.0);
+    tl.to('#op-ex1', { opacity: 0, duration: 0.15 }, 9.0);
+    tl.to('#op-ex2', { opacity: 1, duration: 0.2 }, 9.1);
+    // "One tap": the example turns into one this learner knows; the five stay five.
+    tl.fromTo('#op-ripple', { opacity: 0.9, scale: 0.3 }, { opacity: 0, scale: 2.4, duration: 0.6, ease: 'expo.out', immediateRender: false }, 10.33);
+    const ics = gsap.utils.toArray('.ic');
+    ics.forEach((ic, i) => {
+      const t = 10.4 + ((i + 15) % 20) * 0.03;
+      tl.to(ic.querySelector('.ball'), { rotateY: 90, duration: 0.14, ease: 'power2.in' }, t);
+      tl.to(ic.querySelector('.chk'), { rotateY: 0, duration: 0.18, ease: 'power2.out' }, t + 0.14);
+    });
+    tl.to('.ic:not(.hi)', { opacity: 1, duration: 0.4 }, 10.6);
+    tl.to('#op-ex2', { opacity: 0, duration: 0.15 }, 10.5);
+    tl.to('#op-ex3', { opacity: 1, duration: 0.2 }, 10.7);
+    // Act 3 — the idea steps aside for the line; it is still one quarter.
+    tl.to('.op-label', { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power3.in' }, 13.9);
+    tl.to('#op-stage', { x: -440, scale: 0.86, duration: 0.9, ease: 'power2.inOut' }, 14.0);
+    const t3 = gsap.utils.toArray('#op-title .w');
+    tl.set(t3, { opacity: 0, filter: 'blur(6px)' }, 0);
+    [14.8, 14.95, 15.5, 16.4, 16.6, 16.9].forEach((t, i) => inWord(t3[i], t));
+    tl.fromTo('.ic .chk', { y: 0 }, { y: -10, duration: 0.15, stagger: 0.015, ease: 'power2.out', yoyo: true, repeat: 1 }, 15.5);
+    tl.fromTo('#op-pie-q', { scale: 1 }, { scale: 1.08, duration: 0.18, ease: 'power2.out', yoyo: true, repeat: 1 }, 16.6);
+    tl.to(['#op-stage', '#op-title-in'], { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 19.33);
     window.__timelines['open'] = tl;
   </script>
 </template>

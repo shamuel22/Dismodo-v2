@@ -1,8 +1,9 @@
-# Review — DISMODO film (2:34)
+# Review — DISMODO film (2:37)
 
 **Creative calls**
 - Storyline 1, "One learner, one quarter": the same real problem ("one quarter of 20") runs from the hook to the evidence. Not built: "Two products, one engine" and "The trace first" (see `STORYLINES.md`).
-- Hook = the feature itself: a real session with a sports example, then a tap on "I don't know this example" that turns it into a work project. The founder's story comes at 0:20, after the viewer has seen why it matters.
+- Hook (founder's revision, Oct 30): no product UI in the first 20 s. Kinetic type and allusive objects: a dot stuck at a step too tall; a "one quarter" pie (the idea) ringed by twenty matches, five won (the example); a tap turns the matches into tasks while the five stay five. The product appears from 0:45.
+- No founder name in the opening (narration re-recorded); his phrase and name close the film before the end card.
 - Every screen is the real product, captured from a live session at 2x (`scripts/film-capture.mjs`, `scripts/film-capture-2.mjs`). The decisions, the latencies (Spark 3.8 s, Wonder 5.1 s), the event log and the MCP output (`scripts/film-mcp.mjs`) are real. Only the titles, the escalation labels and the list of allowed moves are drawn, and they use the package's and the console's own words.
 - Voice: ElevenLabs "Brian" (eleven_v4), 13 lines normalised to −16 LUFS. Music: ElevenLabs music_v1, ambient at 88 BPM, ducked to 0.17 under the voice. Effects: ElevenLabs sound generation (click, two whooshes, a riser timed to the logo, typing).
 

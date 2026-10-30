@@ -7,7 +7,7 @@
     #reveal-brand { --S: 150px; --gap: 34px; --unit: calc(var(--S) / 340);
       --sym-w: calc(var(--unit) * 327); --word-w: calc(var(--unit) * 1465); --word-h: calc(var(--unit) * 213);
       --atlas-w: calc(var(--unit) * 2172); --atlas-h: calc(var(--unit) * 724); --spine: calc(var(--unit) * 144);
-      position: absolute; left: 548px; top: 300px; width: calc(var(--sym-w) + var(--gap) + var(--word-w)); height: var(--S); }
+      position: absolute; left: 548px; top: 380px; width: calc(var(--sym-w) + var(--gap) + var(--word-w)); height: var(--S); }
     .reveal-atlas { position: absolute; background-image: url('assets/ui/logo_dismodo.png'); background-repeat: no-repeat;
       background-size: var(--atlas-w) var(--atlas-h); }
     #reveal-book { position: absolute; left: 0; top: 0; width: var(--sym-w); height: var(--S); z-index: 2; perspective: 900px; }
@@ -17,12 +17,9 @@
     #reveal-mask { position: absolute; top: calc((var(--S) - var(--word-h)) / 2); left: var(--spine); right: 0; height: var(--word-h); overflow: hidden; z-index: 1; }
     #reveal-word { left: calc(var(--sym-w) - var(--spine) + var(--gap)); top: 0; width: var(--word-w); height: var(--word-h);
       background-position: calc(var(--unit) * -554) calc(var(--unit) * -286); }
-    #reveal-tag { position: absolute; left: 0; right: 0; top: 500px; text-align: center; font: 400 40px/1.4 Inter, sans-serif; color: #AAA8AD; }
+    #reveal-tag { position: absolute; left: 0; right: 0; top: 590px; text-align: center; font: 400 40px/1.4 Inter, sans-serif; color: #AAA8AD; }
     #reveal-tag .w { display: inline-block; }
     #reveal-tag b { font-weight: 500; color: #F3F0E9; }
-    #reveal-quote { position: absolute; left: 380px; width: 1160px; top: 640px; text-align: center;
-      font: 400 38px/1.75 Inter, sans-serif; color: #AAA8AD; }
-    #reveal-by { margin-top: 18px; font-size: 28px; color: #918C98; }
   </style>
   <div data-hf-id="hf-yqoq" id="root" data-composition-id="reveal" data-width="1920" data-height="1080">
     <div data-hf-id="hf-vshe" id="reveal-brand">
@@ -33,10 +30,6 @@
       <div data-hf-id="hf-sdrn" id="reveal-mask"><span data-hf-id="hf-y7zm" id="reveal-word" class="reveal-atlas"></span></div>
     </div>
     <div data-hf-id="hf-k569" id="reveal-tag"><span data-hf-id="hf-mo5a" class="w">Adaptive learning engine</span> <span data-hf-id="hf-jh5p" class="w">·</span> <span data-hf-id="hf-fr20" class="w"><b data-hf-id="hf-5wpo">for builders</b></span> <span data-hf-id="hf-zyk1" class="w">·</span> <span data-hf-id="hf-xths" class="w"><b data-hf-id="hf-upuc">for AI agents</b></span></div>
-    <div data-hf-id="hf-ge4t" id="reveal-quote" class="clip" data-start="6.6" data-duration="7.4">
-      <div data-hf-id="hf-g9f7" id="reveal-quote-in"><span data-hf-id="hf-1ncy" id="reveal-typed"></span>
-        <div data-hf-id="hf-swg1" id="reveal-by">— Shamuel Perez</div></div>
-    </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
@@ -52,13 +45,7 @@
     const tag = gsap.utils.toArray('#reveal-tag .w');
     tl.set(tag, { opacity: 0, filter: 'blur(6px)' }, 0);
     [3.05, 4.7, 4.75, 5.55, 5.6].forEach((t, i) => tl.to(tag[i], { opacity: 1, filter: 'blur(0px)', duration: 0.14, ease: 'power4.out' }, t));
-    // The founder's phrase types once, as on the landing page.
-    const phrase = "The best learning methodology is the one that adapts to the context, the learning objective, the available resources and the learners' profile.";
-    const typed = { n: 0 };
-    tl.fromTo(typed, { n: 0 }, { n: phrase.length, duration: 4.6, ease: 'none',
-      onUpdate: () => { document.querySelector('#reveal-typed').textContent = phrase.slice(0, Math.round(typed.n)); } }, 6.7);
-    tl.fromTo('#reveal-by', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 11.5);
-    tl.to(['#reveal-brand', '#reveal-tag', '#reveal-quote-in'], { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 13.72);
+    tl.to(['#reveal-brand', '#reveal-tag'], { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 8.22);
     window.__timelines['reveal'] = tl;
   </script>
 </template>

@@ -21,7 +21,7 @@ for (const [i, line] of lines.entries()) {
   });
   if (!res.ok) { console.log(line.id, res.status, (await res.text()).slice(0, 300)); process.exit(1); }
   const j = await res.json();
-  const file = `assets/vo/${line.id}.mp3`;
+  const file = `assets/vo/raw/${line.id}.mp3`;
   writeFileSync(file, Buffer.from(j.audio_base64, 'base64'));
   const a = j.alignment;
   // Word timings from character timings.
