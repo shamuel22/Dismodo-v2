@@ -120,17 +120,14 @@ cannot get a certificate), or port 80/443 blocked by a cloud firewall.
 ## 5. Seed the reference experience
 
 Seeding publishes the reference package in `experiences/` so learners
-and agents have something to practise. It is the `pnpm seed` from the
-repository root, run inside the API container (migrations run first,
-and seeding is safe to repeat — already-present packages are reported,
-not duplicated):
+and agents have something to practise. Run it inside the API container
+(migrations run first, and seeding is safe to repeat — already-present
+packages are reported, not duplicated). The image does not ship a full
+pnpm workspace, so call the script with `tsx` directly:
 
 ```bash
-docker compose -f deploy/docker-compose.prod.yml exec api pnpm seed
+docker compose -f deploy/docker-compose.prod.yml exec api node_modules/.bin/tsx apps/api/scripts/seed.ts
 ```
-
-Equivalent without pnpm, if you prefer:
-`docker compose -f deploy/docker-compose.prod.yml exec api node_modules/.bin/tsx apps/api/scripts/seed.ts`
 
 ## 6. Create a tenant and an API key
 
@@ -140,12 +137,11 @@ password manager immediately:
 
 ```bash
 docker compose -f deploy/docker-compose.prod.yml exec api \
-  pnpm tenant:create -- --slug acme --name "Acme Training"
+  node_modules/.bin/tsx apps/api/scripts/create-tenant.ts --slug acme --name "Acme Training"
 ```
 
-(`pnpm tenant:create` is the repository-root script; the `--` forwards
-the flags. `--label` names the key and `--scopes a,b` can restrict it;
-see `apps/api/scripts/create-tenant.ts`.)
+(`--label` names the key and `--scopes a,b` can restrict it; see
+`apps/api/scripts/create-tenant.ts`.)
 
 Quick check with the new key:
 
@@ -218,10 +214,12 @@ docker compose -f deploy/docker-compose.prod.yml down
 Things that could not be settled from the code alone, or that may need
 an application change (none was made, per the task rules):
 
-- **Not tested end to end.** Docker was unavailable where these files
-  were authored, so the image builds, the first ACME certificate, and
-  the seed/tenant commands above have never been executed. Verify them
-  on a staging domain first if you can.
+- **Tested locally, not yet on the VPS.** On 2026-10-30 both images were
+  built and the full stack ran with `DISMODO_DOMAIN=localhost` (Caddy's
+  local certificate): health, landing, docs, `llms.txt`, the embed script
+  with CORS, a playground session, MCP authentication, the seed and
+  tenant commands above, and `backup.sh` all worked. A public ACME
+  certificate needs real DNS and has not been exercised yet.
 - **MCP behind the proxy.** The MCP server rejects any `Host` header not
   in `MCP_ALLOWED_HOSTS`. Compose sets that to your `DISMODO_DOMAIN`
   (plus internal names), assuming Caddy forwards the public domain as

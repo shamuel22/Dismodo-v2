@@ -9,7 +9,7 @@ RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
 WORKDIR /app
 
 # Workspace manifests first so the install layer is cached.
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/mcp/package.json apps/mcp/package.json
 COPY apps/web/package.json apps/web/package.json
