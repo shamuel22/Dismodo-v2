@@ -31,6 +31,8 @@ All code in this repository was written during the event. The git history is una
 | Builder console | `apps/web/src/docs/ConsolePage.tsx`, `apps/api` | E8 | Sessions, evidence, full decision traces, model metrics and the adaptive vs fixed comparison. |
 | AI package drafts | `packages/adaptation/src/drafts.ts`, `apps/api`, `packages/cli` | E8 | Muse Wonder (Muse Spark fallback) drafts a package from a builder's notes; the engine validates it and the model repairs once; never stored or published without review. |
 | TypeScript SDK | `packages/sdk` | E6 | **Built by Muse Code** from task `docs/muse-tasks/001-sdk.md`; reviewed and merged by the lead engineer (one test type fix). |
+| Deployment files | `deploy/` | E10 | **Built by Muse Code** (task `docs/muse-tasks/003-deploy.md`, run through the Meta Model API): Docker images, production compose, Caddy with TLS, backups and a VPS guide. The lead engineer fixed two build issues and verified the whole stack locally. |
+| Adapters guide | `apps/web/src/docs/content/09-adapters.md` | E8 | **Built by Muse Code** (task `docs/muse-tasks/004-adapters-guide.md`): how to add a new activity family, written from the code; reviewed and merged. |
 | Builder variant package | `examples/acme-onboarding/` | E6 | **Built by Muse Code** acting as a second, independent builder (task `docs/muse-tasks/002-variant-package.md`): `halves-vs-quarters@1.0.0`, valid with no engine changes. |
 
 ## Prior materials (created before the hackathon)
@@ -47,7 +49,7 @@ All code in this repository was written during the event. The git history is una
 | --- | --- |
 | **Muse Spark 1.3** (Meta Model API) | Runs inside the engine as the routine decision tier: chooses the next support step and the matching reviewed hypothesis from closed lists; every call is traced. |
 | **Muse Wonder 1.0** (Meta Model API) | Runs inside the engine as the critical decision tier for escalated moments (rejected hypothesis, repeated mistake, confident but incorrect after support), and drafts experience packages for builders from their notes. |
-| **Muse Code with Muse Wonder** (Meta) | Second development agent working from written task specs in isolated git worktrees; built the TypeScript SDK and the Acme variant package. Its commits carry `Co-Authored-By: Muse Code`; every change was reviewed before merge. |
+| **Muse Code with Muse Wonder** (Meta) | Second development agent working from written task specs in isolated git worktrees; built the TypeScript SDK, the Acme variant package, the deployment files and the adapters guide (after its subscription quota ran out, through the Meta Model API directly). Its commits carry `Co-Authored-By: Muse Code`; every change was reviewed before merge. |
 | **Claude Code** (Anthropic Opus 5.5) | Lead engineering agent under the founder's direction; its commits carry `Co-Authored-By: Claude`. |
 | **Codex** (OpenAI GPT-6.1) | Read-only design and security reviewer at stage boundaries (contract, isolation, adaptation). Wrote no project code; findings and resolutions are logged in `PLAN_DESARROLLO.md`. |
 
