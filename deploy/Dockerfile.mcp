@@ -1,0 +1,50 @@
+# syntax=docker/dockerfile:1
+# DISMODO MCP image: Streamable HTTP server (apps/mcp/src/http.ts).
+# It talks to the API over HTTP (DISMODO_API_URL), never to Postgres.
+
+FROM node:24-bookworm-slim AS builder
+RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
+WORKDIR /app
+
+# Workspace manifests first so the install layer is cached.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/mcp/package.json apps/mcp/package.json
+COPY packages/contracts/package.json packages/contracts/package.json
+COPY packages/sdk/package.json packages/sdk/package.json
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/activities/package.json packages/activities/package.json
+COPY packages/adaptation/package.json packages/adaptation/package.json
+COPY packages/engine/package.json packages/engine/package.json
+COPY packages/cli/package.json packages/cli/package.json
+COPY examples/acme-onboarding/package.json examples/acme-onboarding/package.json
+# Only the MCP server and what it imports (@dismodo/sdk -> @dismodo/contracts).
+RUN pnpm install --frozen-lockfile --filter @dismodo/mcp...
+
+COPY apps/mcp ./apps/mcp
+COPY packages/sdk ./packages/sdk
+COPY packages/contracts ./packages/contracts
+
+FROM node:24-bookworm-slim AS runtime
+RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
+ENV NODE_ENV=production
+# Behind Caddy: answer on all interfaces. MCP_ALLOWED_HOSTS is NOT baked in;
+# it comes from the environment (see docker-compose.prod.yml), because it
+# must contain the public domain that clients send as the Host header.
+ENV MCP_HOST=0.0.0.0
+ENV MCP_PORT=4200
+WORKDIR /app
+
+COPY --from=builder --chown=node:node /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/apps/mcp ./apps/mcp
+COPY --from=builder --chown=node:node /app/packages ./packages
+
+USER node
+EXPOSE 4200
+# http.ts has no /health route; a TCP connect is the honest check.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node --input-type=module -e "import net from 'node:net'; const s = net.connect(4200, '127.0.0.1'); s.on('connect', () => { s.end(); process.exit(0); }); s.on('error', () => process.exit(1));"
+# Same entry point as "pnpm --filter @dismodo/mcp http", minus the
+# --env-file-if-exists=../../.env lookup (env comes from Compose).
+CMD ["apps/mcp/node_modules/.bin/tsx", "apps/mcp/src/http.ts"]

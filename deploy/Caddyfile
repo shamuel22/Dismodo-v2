@@ -1,0 +1,40 @@
+# DISMODO production reverse proxy.
+# DISMODO_DOMAIN comes from the caddy service environment (deploy/.env).
+# Caddy obtains and renews the TLS certificate automatically (ACME).
+
+{$DISMODO_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	# No global Content-Security-Policy and no X-Frame-Options /
+	# frame-ancestors here, on purpose:
+	#   - a strict CSP breaks the Vite SPA (inline bootstrap, fonts, WASM);
+	#   - the embed script at /embed/dismodo-session.js must stay loadable
+	#     cross-origin (<script type="module" src="https://.../embed/...">),
+	#     and the <dismodo-session> element it defines is not an iframe, so
+	#     framing policy must not be applied to it.
+	# The API itself sends CORS "*" only on /v1/runtime/* and /embed/*
+	# (see apps/api/src/server.ts); everything else stays same-origin.
+	# If framing ever needs restricting, scope it to the HTML pages only,
+	# e.g.:  @pages path / /s/* /docs/*
+	#         header @pages Content-Security-Policy "frame-ancestors 'self'"
+
+	handle /mcp {
+		reverse_proxy mcp:4200
+	}
+
+	handle {
+		reverse_proxy api:4100
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
