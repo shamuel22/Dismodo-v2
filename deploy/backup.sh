@@ -3,7 +3,7 @@
 # dated, gzipped file under deploy/backups/, keeping the newest 14.
 #
 # Cron (daily at 03:15, from the repository checkout on the VPS):
-#   15 3 * * * cd /opt/dismodo && ./deploy/backup.sh >> deploy/backups/backup.log 2>&1
+#   15 3 * * * cd /opt/dismodo && COMPOSE_PROJECT_NAME=dismodo ./deploy/backup.sh >> deploy/backups/backup.log 2>&1
 #
 # Restore (into the running stack; this overwrites current data):
 #   gunzip -c deploy/backups/dismodo-YYYY-MM-DD-HHMMSS.sql.gz \
