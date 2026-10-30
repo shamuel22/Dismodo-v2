@@ -1,0 +1,60 @@
+<template>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #141517; }
+    #pkg-panel { position: absolute; left: 110px; top: 220px; width: 1700px; height: 790px; border-radius: 22px;
+      background: #1C1D20; border: 1px solid rgba(196, 187, 210, 0.18); }
+    #pkg-file { position: absolute; left: 44px; top: 30px; font: 400 28px/1.4 'JetBrains Mono', monospace; color: #918C98; }
+    #pkg-code { position: absolute; left: 44px; top: 96px; font: 400 32px/1.6 'JetBrains Mono', monospace; color: #918C98; white-space: pre; }
+    #pkg-code .ln { display: block; position: relative; }
+    #pkg-code .k { color: #B39CFF; }
+    #pkg-code .s { color: #F3F0E9; }
+    #pkg-code .ln::before { content: ''; position: absolute; left: -26px; top: 12px; width: 6px; height: 24px; border-radius: 3px;
+      background: #D7FF7F; opacity: var(--mark, 0); }
+    #pkg-label { position: absolute; left: 110px; top: 84px; width: 1700px; font: 500 72px/1.12 'Space Grotesk', sans-serif;
+      letter-spacing: -0.02em; color: #F3F0E9; }
+    #pkg-label .w { display: inline-block; }
+    #pkg-label .muted { color: #AAA8AD; }
+    #pkg-term { position: absolute; left: 1010px; top: 640px; width: 840px; border-radius: 18px; background: #101113;
+      border: 1px solid rgba(196, 187, 210, 0.18); padding: 30px 34px; font: 400 28px/1.65 'JetBrains Mono', monospace; color: #AAA8AD; }
+    #pkg-term .ok { color: #A9D99B; }
+    #pkg-term .cmd { color: #F3F0E9; }
+  </style>
+  <div data-hf-id="hf-ib8t" id="root" data-composition-id="package" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-ljoc" id="pkg-panel">
+      <div data-hf-id="hf-yg0x" id="pkg-file">experiences/parts-of-a-whole/experience.json</div>
+      <div data-hf-id="hf-edvp" id="pkg-code" data-layout-allow-overlap><span data-hf-id="hf-9hjn" class="ln" id="pkg-l0">{</span><span data-hf-id="hf-ar61" class="ln" id="pkg-l1">  <span data-hf-id="hf-wx7s" class="k">"experience_id"</span>: <span data-hf-id="hf-lev0" class="s">"parts-of-a-whole"</span>, <span data-hf-id="hf-d86c" class="k">"version"</span>: <span data-hf-id="hf-b115" class="s">"1.0.0"</span>,</span><span data-hf-id="hf-kzjm" class="ln" id="pkg-l2">  <span data-hf-id="hf-1791" class="k">"objective"</span>: <span data-hf-id="hf-tb03" class="s">"Find one quarter of a set of things."</span>,</span><span data-hf-id="hf-8er5" class="ln" id="pkg-l3">  <span data-hf-id="hf-ifwn" class="k">"activity"</span>: { <span data-hf-id="hf-6kp7" class="k">"ref"</span>: <span data-hf-id="hf-4qd6" class="s">"set-selection.v1"</span>, … },</span><span data-hf-id="hf-kksu" class="ln" id="pkg-l4">  <span data-hf-id="hf-hw0j" class="k">"evaluator"</span>: { <span data-hf-id="hf-cxbf" class="k">"ref"</span>: <span data-hf-id="hf-iyss" class="s">"fraction-of-set.v1"</span> },</span><span data-hf-id="hf-j3bo" class="ln" id="pkg-l5">  <span data-hf-id="hf-2lvs" class="k">"contexts"</span>: [ { <span data-hf-id="hf-squv" class="k">"id"</span>: <span data-hf-id="hf-bpyq" class="s">"project-tasks"</span>, … },</span><span data-hf-id="hf-av4d" class="ln" id="pkg-l6">                { <span data-hf-id="hf-upkn" class="k">"id"</span>: <span data-hf-id="hf-jh45" class="s">"sports-season"</span>, … }, … ],</span><span data-hf-id="hf-6opp" class="ln" id="pkg-l7">  <span data-hf-id="hf-0gln" class="k">"confusions"</span>: [ { <span data-hf-id="hf-ub9m" class="k">"id"</span>: <span data-hf-id="hf-9hhm" class="s">"took-the-rest"</span>, … }, … ],</span><span data-hf-id="hf-km95" class="ln" id="pkg-l8">  <span data-hf-id="hf-i5bq" class="k">"interventions"</span>: {</span><span data-hf-id="hf-eqy5" class="ln" id="pkg-l9">    <span data-hf-id="hf-kv8k" class="k">"allowed"</span>: [<span data-hf-id="hf-hi9w" class="s">"essential"</span>, <span data-hf-id="hf-mfhq" class="s">"contrast"</span>, <span data-hf-id="hf-bk9v" class="s">"swap-context"</span>, …],</span><span data-hf-id="hf-8a0c" class="ln" id="pkg-l10">    <span data-hf-id="hf-jes3" class="k">"editorial"</span>: { <span data-hf-id="hf-7tuu" class="k">"contrast"</span>: { <span data-hf-id="hf-svsi" class="k">"title"</span>: <span data-hf-id="hf-s1cp" class="s">"Which part is asked?"</span>, … } } }</span><span data-hf-id="hf-jwyf" class="ln" id="pkg-l11">}</span></div>
+    </div>
+    <div data-hf-id="hf-342v" id="pkg-label" class="clip" data-start="0.2" data-duration="10.9"><div data-hf-id="hf-yg0w" id="pkg-label-in">
+      <span data-hf-id="hf-0jp6" class="w">What</span> <span data-hf-id="hf-z575" class="w">to</span> <span data-hf-id="hf-u7f5" class="w">teach.</span> <span data-hf-id="hf-z75m" class="muted"><span data-hf-id="hf-w4ku" class="w">How</span> <span data-hf-id="hf-53t1" class="w">to</span> <span data-hf-id="hf-bbsw" class="w">check</span> <span data-hf-id="hf-3rmp" class="w">it.</span></span>
+    </div></div>
+    <div data-hf-id="hf-mcy5" id="pkg-term" data-layout-allow-overlap class="clip" data-start="11.6" data-duration="3.9"><div data-hf-id="hf-j70w" id="pkg-term-in">
+      <div data-hf-id="hf-do89" class="cmd">$ dismodo validate experience.json</div>
+      <div data-hf-id="hf-ej4w" id="pkg-out1"><span data-hf-id="hf-nd5k" class="ok">✓</span> experience.json is a valid package.</div>
+      <div data-hf-id="hf-uj4g" id="pkg-out2">  tests 5/5 · reserved checks 2 · practice pool 8/10</div>
+      <div data-hf-id="hf-afrh" id="pkg-out3">  components set-selection.v1+r1, fraction-of-set.v1+r1</div>
+    </div></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo('#pkg-panel', { opacity: 0, scale: 0.97, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.6, ease: 'expo.out' }, 0.1);
+    tl.fromTo('#pkg-code .ln', { opacity: 0 }, { opacity: 1, duration: 0.2, stagger: 0.05, ease: 'power2.out' }, 0.35);
+    const label = gsap.utils.toArray('#pkg-label .w');
+    tl.set(label, { opacity: 0, filter: 'blur(6px)' }, 0);
+    [0.6, 0.75, 1.8, 2.45, 2.6, 2.75, 3.0].forEach((t, i) => tl.to(label[i], { opacity: 1, filter: 'blur(0px)', duration: 0.13, ease: 'power4.out' }, t));
+    // Each part lights as it is named; the others step back.
+    const lit = (ids, t) => {
+      tl.to('#pkg-code .ln', { opacity: 0.38, '--mark': 0, duration: 0.25, ease: 'power2.out' }, t);
+      tl.to(ids.map((n) => `#pkg-l${n}`), { opacity: 1, '--mark': 1, duration: 0.25, ease: 'power2.out' }, t);
+    };
+    lit([2], 5.2); lit([3, 4], 6.2); lit([5, 6], 7.0); lit([7], 8.7); lit([8, 9, 10], 9.9);
+    tl.to('#pkg-code .ln', { opacity: 1, '--mark': 0, duration: 0.3 }, 11.4);
+    tl.to('#pkg-label-in', { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, 10.7);
+    // "validates it": the terminal arrives over the panel's corner, the check lands on "validates".
+    tl.to('#pkg-panel', { opacity: 0.4, duration: 0.3, ease: 'power2.out' }, 11.6);
+    tl.fromTo('#pkg-term-in', { opacity: 0, y: 30, filter: 'blur(6px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.45, ease: 'expo.out' }, 11.6);
+    tl.fromTo(['#pkg-out1', '#pkg-out2', '#pkg-out3'], { opacity: 0 }, { opacity: 1, duration: 0.08, stagger: 0.12 }, 12.4);
+    tl.to(['#pkg-panel', '#pkg-term-in'], { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 15.22);
+    window.__timelines['package'] = tl;
+  </script>
+</template>

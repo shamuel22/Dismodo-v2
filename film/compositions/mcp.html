@@ -1,0 +1,44 @@
+<template>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #141517; }
+    #mc-term { position: absolute; left: 130px; top: 110px; width: 1660px; height: 860px; border-radius: 22px; background: #101113;
+      border: 1px solid rgba(196, 187, 210, 0.18); overflow: hidden; }
+    #mc-bar { height: 70px; padding: 20px 34px; border-bottom: 1px solid rgba(196, 187, 210, 0.10); font: 400 28px/1.2 Inter, sans-serif; color: #918C98; }
+    #mc-bar b { font-weight: 500; color: #F3F0E9; }
+    #mc-body { padding: 26px 34px; font: 400 28px/1.6 'JetBrains Mono', monospace; color: #AAA8AD; white-space: pre; }
+    .mc-call { color: #F3F0E9; }
+    .mc-call .t { color: #B39CFF; }
+    .mc-out { color: #918C98; }
+    .mc-out b { font-weight: 400; color: #A9D99B; }
+    .mc-gap { height: 18px; }
+  </style>
+  <div data-hf-id="hf-wqcl" id="root" data-composition-id="mcp" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-v34c" id="mc-term">
+      <div data-hf-id="hf-x6a6" id="mc-bar"><b data-hf-id="hf-jn4u">dismodo</b> · MCP server · stdio or Streamable HTTP · read-only for the assistant</div>
+      <div data-hf-id="hf-5ry6" id="mc-body"><div data-hf-id="hf-p3ll" class="mc-call" id="mc-c1"><span data-hf-id="hf-y8ex" class="t">search_experiences</span> {"query": "fractions"}</div><div data-hf-id="hf-n3f2" class="mc-out" id="mc-o1">parts-of-a-whole@1.0.0: One quarter of a set.
+(~8 min; contexts: project-tasks, materials, sports-season)</div><div data-hf-id="hf-qg7z" class="mc-gap"></div><div data-hf-id="hf-bn0b" class="mc-call" id="mc-c2"><span data-hf-id="hf-xjgu" class="t">start_session</span> {"experience": "parts-of-a-whole", "learner_ref": "agent-demo"}</div><div data-hf-id="hf-0t0v" class="mc-out" id="mc-o2">Session fc8c141e… started for parts-of-a-whole@1.0.0 (learner agent-demo).
+Give this link to the learner (it expires 2026-11-06): http://localhost:5173/s/#…</div><div data-hf-id="hf-vx27" class="mc-gap"></div><div data-hf-id="hf-b8tk" class="mc-call" id="mc-c3"><span data-hf-id="hf-ltev" class="t">get_evidence</span> {"session_id": "8080dce0…"}</div><div data-hf-id="hf-4r37" class="mc-out" id="mc-o3">Status: completed (parts-of-a-whole@1.0.0). Scope: this-skill-and-session.
+- Practice: 1 of 3 correct; hints used on 0 item(s).
+- Independent check (held-out problems, no hints): <b data-hf-id="hf-5ono">2 of 2 correct.</b>
+- After "swap-context", the next item was correct in this session.
+Not yet checked:
+- Retention over time (delayed check not measured).</div></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo('#mc-term', { opacity: 0, scale: 0.97, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.55, ease: 'expo.out' }, 0.1);
+    // Each call types, then its real output prints at once.
+    const type = (id, t, d) => tl.fromTo(id, { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: d, ease: 'steps(40)' }, t);
+    const print = (id, t) => tl.fromTo(id, { opacity: 0 }, { opacity: 1, duration: 0.06 }, t);
+    tl.set(['#mc-c1', '#mc-c2', '#mc-c3', '#mc-o1', '#mc-o2', '#mc-o3'], { opacity: 0 }, 0);
+    tl.set('#mc-c1', { opacity: 1 }, 3.3); type('#mc-c1', 3.3, 0.55); print('#mc-o1', 3.95);
+    tl.set('#mc-c2', { opacity: 1 }, 4.8); type('#mc-c2', 4.8, 0.6); print('#mc-o2', 5.5);
+    tl.set('#mc-c3', { opacity: 1 }, 5.95); type('#mc-c3', 5.95, 0.45); print('#mc-o3', 6.5);
+    // The evidence is the point: lean in on it.
+    tl.to('#mc-term', { scale: 1.16, x: 40, y: -170, transformOrigin: '50% 100%', duration: 1.0, ease: 'power2.inOut' }, 7.6);
+    tl.to('#mc-term', { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 10.72);
+    window.__timelines['mcp'] = tl;
+  </script>
+</template>

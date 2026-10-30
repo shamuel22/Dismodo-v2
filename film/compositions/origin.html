@@ -1,0 +1,56 @@
+<template>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
+    #root { position: absolute; inset: 0; overflow: hidden;
+      background: radial-gradient(ellipse at 50% 40%, rgba(91, 72, 116, 0.16), transparent 62%), #141517; }
+    #origin-name { position: absolute; left: 240px; top: 330px; width: 1440px; }
+    #origin-name .who { font: 500 96px/1.1 'Space Grotesk', sans-serif; letter-spacing: -0.02em; color: #F3F0E9; }
+    #origin-name .role { margin-top: 26px; font: 400 40px/1.4 Inter, sans-serif; color: #AAA8AD; }
+    #origin-name .role b { font-weight: 400; color: #F3F0E9; }
+    #origin-quote { position: absolute; left: 0; right: 0; top: 340px; text-align: center; }
+    #origin-label { position: relative; display: inline-block; font: 500 136px/1.1 'Space Grotesk', sans-serif;
+      letter-spacing: -0.03em; color: #F3F0E9; }
+    #origin-label .w { display: inline-block; }
+    #origin-strike { position: absolute; left: -24px; right: -24px; top: 54%; height: 12px; border-radius: 6px;
+      background: #D7FF7F; transform-origin: 0 50%; }
+    #origin-instead { margin-top: 56px; font: 500 64px/1.2 'Space Grotesk', sans-serif; letter-spacing: -0.02em; color: #F3F0E9; }
+    #origin-instead .w { display: inline-block; }
+    #origin-instead .q { color: #B39CFF; }
+  </style>
+  <div data-hf-id="hf-6yqh" id="root" data-composition-id="origin" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-2gs9" id="origin-name" class="clip" data-start="0.3" data-duration="6.4">
+      <div data-hf-id="hf-ed2j" id="origin-name-in">
+        <div data-hf-id="hf-mc4x" class="who">Shamuel Perez</div>
+        <div data-hf-id="hf-ioul" class="role">Founder · building for <b data-hf-id="hf-3ltj">his own world</b></div>
+      </div>
+    </div>
+    <div data-hf-id="hf-it1t" id="origin-quote" class="clip" data-start="7.2" data-duration="10.4">
+      <div data-hf-id="hf-1bp8" id="origin-quote-in">
+        <div data-hf-id="hf-bmjq" id="origin-label"><span data-hf-id="hf-ap6n" class="w">“I'm</span> <span data-hf-id="hf-bdmj" class="w">bad</span> <span data-hf-id="hf-xtml" class="w">at</span> <span data-hf-id="hf-odpr" class="w">math.”</span><span data-hf-id="hf-dguz" id="origin-strike"></span></div>
+        <div data-hf-id="hf-422q" id="origin-instead"><span data-hf-id="hf-ufi3" class="w">A</span> <span data-hf-id="hf-eqjd" class="w q">question</span> <span data-hf-id="hf-z575" class="w">to</span> <span data-hf-id="hf-y2qv" class="w">investigate.</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // Name: per letter-ish blur in on "founder", role line after.
+    tl.fromTo('#origin-name .who', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 2.6);
+    tl.fromTo('#origin-name .role', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 3.3);
+    tl.to('#origin-name-in', { opacity: 0, filter: 'blur(8px)', duration: 0.22, ease: 'power3.in' }, 6.4);
+    // The label arrives word by word as it is said.
+    const label = gsap.utils.toArray('#origin-label .w');
+    // It forms faintly while "one struggle becomes an identity" is said, then sharpens as it is spoken.
+    tl.set(label, { opacity: 0, filter: 'blur(10px)' }, 0);
+    [7.5, 7.8, 8.1, 8.4].forEach((t, i) => tl.to(label[i], { opacity: 0.22, filter: 'blur(3px)', duration: 0.28, ease: 'power2.out' }, t));
+    [10.1, 10.4, 10.7, 10.8].forEach((t, i) =>
+      tl.to(label[i], { opacity: 1, filter: 'blur(0px)', duration: 0.13, ease: 'power4.out' }, t));
+    // "treats a struggle as a question": the pear line strikes the label, which steps back.
+    tl.fromTo('#origin-strike', { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: 'expo.out' }, 12.45);
+    tl.to('#origin-label .w', { color: '#918C98', duration: 0.3, ease: 'power2.out' }, 12.6);
+    const instead = gsap.utils.toArray('#origin-instead .w');
+    tl.set(instead, { opacity: 0, filter: 'blur(6px)' }, 0);
+    [13.55, 13.7, 14.05, 14.35].forEach((t, i) => tl.to(instead[i], { opacity: 1, filter: 'blur(0px)', duration: 0.13, ease: 'power4.out' }, t));
+    tl.to('#origin-quote-in', { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 17.1);
+    window.__timelines['origin'] = tl;
+  </script>
+</template>

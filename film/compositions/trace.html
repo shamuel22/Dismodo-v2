@@ -1,0 +1,30 @@
+<template>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #141517; }
+    #tr-cam { position: absolute; left: 0; top: 0; width: 1920px; height: 3310px; transform-origin: 0 0; }
+    #tr-cam img { position: absolute; left: 0; top: 0; width: 1920px; height: 3310px; }
+    .tr-dim { position: absolute; top: 310px; height: 444px; background: #141517; opacity: 0; border-radius: 10px; }
+  </style>
+  <div data-hf-id="hf-vojk" id="root" data-composition-id="trace" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-f8tt" id="tr-cam">
+      <img data-hf-id="hf-0i2y" src="assets/ui/b-console-trace.png" alt="" />
+      <div data-hf-id="hf-qbmq" class="tr-dim" id="tr-d0" style="left:565px;width:248px"></div>
+      <div data-hf-id="hf-1pjx" class="tr-dim" id="tr-d1" style="left:824px;width:248px"></div>
+      <div data-hf-id="hf-wqbb" class="tr-dim" id="tr-d2" style="left:1080px;width:248px"></div>
+      <div data-hf-id="hf-xys1" class="tr-dim" id="tr-d3" style="left:1336px;width:250px"></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const cam = (cx, cy, s) => ({ x: 960 - s * cx, y: 540 - s * cy, scale: s });
+    // The console as it is, then the four kinds of evidence, each lit as it is named.
+    tl.fromTo('#tr-cam', { ...cam(960, 540, 1.0), opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' }, 0);
+    tl.to('#tr-cam', { ...cam(1075, 505, 1.72), duration: 1.0, ease: 'power2.inOut' }, 1.5);
+    const focus = (n, t) => [0, 1, 2, 3].forEach((i) => tl.to('#tr-d' + i, { opacity: i === n ? 0 : 0.62, duration: 0.25, ease: 'power2.out' }, t));
+    focus(0, 2.9); focus(1, 4.2); focus(2, 6.6); focus(3, 7.9);
+    tl.to('.tr-dim', { opacity: 0, duration: 0.3 }, 9.3);
+    tl.to('#tr-cam', { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 9.72);
+    window.__timelines['trace'] = tl;
+  </script>
+</template>

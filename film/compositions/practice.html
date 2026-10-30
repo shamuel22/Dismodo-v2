@@ -1,0 +1,106 @@
+<template>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #141517; }
+    .pr-cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+    .pr-cam img { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #pr-cover { position: absolute; left: 664px; top: 468px; width: 384px; height: 34px; background: #141517; transform-origin: 100% 50%; }
+    #pr-cursor { position: absolute; left: 0; top: 0; width: 64px; height: 64px; z-index: 6; }
+    /* A window onto the real console trace (3840 × 6620 capture shown at 1920 css px wide). */
+    .pr-trace { position: absolute; overflow: hidden; border-radius: 16px; border: 1px solid rgba(196, 187, 210, 0.18); background: #141517; }
+    .pr-trace img { position: absolute; width: 1920px; height: 3310px; transform-origin: 0 0; }
+    #pr-log { left: 225px; top: 740px; width: 1470px; height: 284px; }
+    #pr-log img { left: -1361px; top: -4896px; transform: scale(2.4); }
+    #pr-decision { left: 45px; top: 300px; width: 1830px; height: 476px; }
+    #pr-decision img { left: -1021px; top: -2084px; transform: scale(1.8); }
+    #pr-esc { position: absolute; left: 0; right: 0; top: 150px; text-align: center; font: 500 60px/1.2 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    #pr-esc .tier { display: block; margin-top: 10px; font: 400 28px/1.4 'JetBrains Mono', monospace; letter-spacing: 0; color: #918C98; }
+    #pr-spark, #pr-wonder { display: inline-block; vertical-align: top; width: 620px; color: #918C98; }
+    #pr-arrow { display: inline-block; vertical-align: top; width: 160px; height: 72px; }
+    #pr-list { position: absolute; left: 460px; top: 430px; width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 60px;
+      font: 400 40px/1.5 'JetBrains Mono', monospace; color: #AAA8AD; }
+    #pr-list .pick { color: #D7FF7F; }
+    #pr-why { position: absolute; left: 0; right: 0; top: 330px; text-align: center; font: 400 32px/1.4 'JetBrains Mono', monospace; color: #AAA8AD; }
+    .pr-mark { position: absolute; left: 0; width: 1470px; height: 92px; background: rgba(215, 255, 127, 0.14); border-left: 6px solid #D7FF7F; opacity: 0; }
+    #pr-listhead { position: absolute; left: 460px; top: 360px; font: 400 30px/1.4 Inter, sans-serif; color: #918C98; }
+  </style>
+  <div data-hf-id="hf-63cq" id="root" data-composition-id="practice" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-zieb" id="pr-cam1" class="pr-cam">
+      <img data-hf-id="hf-am1n" id="pr-p6" src="assets/ui/06-item-wrong.png" alt="" />
+      <img data-hf-id="hf-k908" id="pr-p7" src="assets/ui/07-feedback-wrong.png" alt="" style="opacity:0" />
+    </div>
+    <div data-hf-id="hf-i80x" id="pr-cam2" class="pr-cam" style="opacity:0">
+      <img data-hf-id="hf-vgpl" id="pr-p8" src="assets/ui/08-explanation.png" alt="" />
+      <img data-hf-id="hf-lk34" id="pr-p9" src="assets/ui/09-hypothesis-note.png" alt="" style="opacity:0" />
+      <div data-hf-id="hf-8c7c" id="pr-cover" style="opacity:0"></div>
+    </div>
+    <div data-hf-id="hf-juj9" id="pr-log" class="pr-trace clip" data-start="5.6" data-duration="4.1"><img data-hf-id="hf-0i2y" src="assets/ui/b-console-trace.png" alt="" /><div data-hf-id="hf-3p9x" class="pr-mark" id="pr-m1" style="top:96px"></div><div data-hf-id="hf-42od" class="pr-mark" id="pr-m2" style="top:190px"></div></div>
+    <div data-hf-id="hf-g9t9" id="pr-why" class="clip" data-start="10.8" data-duration="9.4"><div data-hf-id="hf-62vj" id="pr-why-in">confident · not correct · right after an explanation</div></div>
+    <div data-hf-id="hf-r78i" id="pr-esc" class="clip" data-start="10.2" data-duration="10.2"><div data-hf-id="hf-x2xp" id="pr-esc-in">
+      <span data-hf-id="hf-lazz" id="pr-spark">Muse Spark 1.3<span data-hf-id="hf-8fdv" class="tier">routine</span></span><svg data-hf-id="hf-5a7x" id="pr-arrow" viewBox="0 0 160 72"><path data-hf-id="hf-7uja" id="pr-arrow-path" d="M14 36 H140 M118 16 L142 36 L118 56" fill="none" stroke="#B39CFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110" /></svg><span data-hf-id="hf-3vzg" id="pr-wonder">Muse Wonder 1.0<span data-hf-id="hf-lg2w" class="tier">critical</span></span>
+    </div></div>
+    <div data-hf-id="hf-s2j0" id="pr-listhead" class="clip" data-start="17.6" data-duration="2.8">Allowed by this package</div>
+    <div data-hf-id="hf-vvoz" id="pr-list" class="clip" data-start="17.6" data-duration="2.8">
+      <span data-hf-id="hf-onxz">essential</span><span data-hf-id="hf-qc66">worked-example</span><span data-hf-id="hf-qyuo">step-by-step</span><span data-hf-id="hf-99x0" class="pick">contrast</span>
+      <span data-hf-id="hf-u4ny">prerequisite-check</span><span data-hf-id="hf-a750">swap-context</span><span data-hf-id="hf-xdyl">fade-support</span><span data-hf-id="hf-m9kb">shorten-session</span>
+    </div>
+    <div data-hf-id="hf-dlmt" id="pr-decision" class="pr-trace clip" data-start="20.3" data-duration="3.4"><img data-hf-id="hf-h9vy" src="assets/ui/b-console-trace.png" alt="" /></div>
+    <svg data-hf-id="hf-y42m" id="pr-cursor" viewBox="0 0 32 32" aria-hidden="true" style="opacity:0">
+      <path data-hf-id="hf-bcjt" d="M6 3 L6 25 L11.5 19.8 L15.2 28.2 L19 26.6 L15.4 18.4 L23 18.4 Z" fill="#F3F0E9" stroke="#141517" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const cam = (cx, cy, s) => ({ x: 960 - s * cx, y: 540 - s * cy, scale: s });
+    const at = (px, py, c) => ({ x: c.x + c.scale * px - 6, y: c.y + c.scale * py - 4 });
+    // 1. The mistake: six of eight marked, then checked.
+    const A = cam(959, 389, 1.62), A2 = cam(959, 389, 1.75), B = cam(959, 330, 1.75);
+    tl.fromTo('#pr-cam1', A, { ...A2, duration: 3.2, ease: 'power2.inOut' }, 0);
+    tl.fromTo('#pr-cam1', { opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' }, 0);
+    const check = at(733, 564, A2);
+    tl.fromTo('#pr-cursor', { x: 1980, y: 1100, opacity: 1 }, { x: check.x, y: check.y, opacity: 1, duration: 0.9, ease: 'expo.out' }, 2.4);
+    tl.to('#pr-cursor', { scale: 0.86, duration: 0.07 }, 3.55);
+    tl.to('#pr-cursor', { scale: 1, duration: 0.12 }, 3.62);
+    tl.to('#pr-p6', { opacity: 0, filter: 'blur(8px)', duration: 0.15, ease: 'power2.in' }, 3.62);
+    tl.fromTo('#pr-p7', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.15, ease: 'power2.out' }, 3.7);
+    tl.to('#pr-cam1', { ...B, duration: 0.6, ease: 'power2.inOut' }, 3.75);
+    tl.to('#pr-cursor', { x: '+=80', y: '+=260', opacity: 0, duration: 0.3, ease: 'power3.in' }, 3.9);
+    // What the learner said, straight from the event log: answer, not correct, self-rating "confident".
+    tl.fromTo('#pr-log img', { opacity: 0 }, { opacity: 1, duration: 0.01 }, 5.6);
+    tl.fromTo('#pr-log', { clipPath: 'inset(0 100% 0 0 round 16px)' }, { clipPath: 'inset(0 0% 0 0 round 16px)', duration: 0.5, ease: 'expo.out' }, 5.6);
+    tl.to('#pr-m1', { opacity: 1, duration: 0.2 }, 6.75);
+    tl.to('#pr-m2', { opacity: 1, duration: 0.2 }, 5.95);
+    tl.to(['#pr-cam1', '#pr-log img', '.pr-mark'], { opacity: 0, filter: 'blur(10px)', duration: 0.22, ease: 'power3.in' }, 9.45);
+    // 2. Escalation: the routine tier hands the moment to the critical tier.
+    tl.fromTo('#pr-spark', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', color: '#F3F0E9', duration: 0.18, ease: 'power4.out' }, 10.3);
+    tl.to('#pr-spark', { color: '#918C98', duration: 0.3 }, 13.9);
+    tl.to('#pr-arrow-path', { strokeDashoffset: 0, duration: 0.5, ease: 'expo.out' }, 13.9);
+    tl.fromTo('#pr-wonder', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', color: '#B39CFF', duration: 0.18, ease: 'power4.out' }, 14.65);
+    tl.fromTo('#pr-why-in', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 10.9);
+    tl.to('#pr-why-in', { opacity: 0, duration: 0.2 }, 17.3);
+    // 3. A closed list; the model picks one.
+    tl.fromTo('#pr-listhead', { opacity: 0 }, { opacity: 1, duration: 0.2 }, 17.6);
+    tl.fromTo('#pr-list span', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.14, stagger: 0.06, ease: 'power4.out' }, 17.65);
+    tl.to('#pr-list span:not(.pick)', { opacity: 0.3, duration: 0.3, ease: 'power2.out' }, 19.3);
+    tl.to(['#pr-list', '#pr-listhead'], { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, 20.15);
+    // 4. The real decision record: reviewed hypothesis, builder-only reading, escalation reason, model and latency.
+    tl.fromTo('#pr-decision', { opacity: 0, scale: 0.94, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.5, ease: 'expo.out' }, 20.3);
+    tl.to('#pr-esc-in', { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, 20.15);
+    tl.to('#pr-decision', { opacity: 0, filter: 'blur(10px)', duration: 0.22, ease: 'power3.in' }, 23.45);
+    // 5. What the learner sees: reviewed content, the hypothesis, and a way to disagree.
+    const C = cam(959, 369, 1.7), D = cam(959, 470, 1.85);
+    tl.fromTo('#pr-cam2', { ...C, opacity: 0, filter: 'blur(10px)' }, { ...C, opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' }, 23.6);
+    const no = at(911, 449, C);
+    tl.fromTo('#pr-cursor', { x: 1980, y: 1100, opacity: 1 }, { x: no.x, y: no.y, opacity: 1, duration: 0.8, ease: 'expo.out' }, 24.0);
+    tl.to('#pr-cursor', { scale: 0.86, duration: 0.07 }, 24.96);
+    tl.to('#pr-cursor', { scale: 1, duration: 0.12 }, 25.03);
+    tl.set('#pr-cover', { opacity: 1 }, 25.05);
+    tl.to('#pr-p8', { opacity: 0, duration: 0.12 }, 25.05);
+    tl.to('#pr-p9', { opacity: 1, duration: 0.12 }, 25.05);
+    tl.to('#pr-cursor', { x: '+=60', y: '+=240', opacity: 0, duration: 0.3, ease: 'power3.in' }, 25.2);
+    tl.to('#pr-cam2', { ...D, duration: 0.7, ease: 'power2.inOut' }, 25.15);
+    tl.fromTo('#pr-cover', { scaleX: 1 }, { scaleX: 0, duration: 1.7, ease: 'steps(54)' }, 25.5);
+    tl.to('#pr-cam2', { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 30.0);
+    window.__timelines['practice'] = tl;
+  </script>
+</template>

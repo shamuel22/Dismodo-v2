@@ -1,0 +1,15 @@
+[
+ {"id":"hook","text":"Learning something new can be hard, even when you really want to. Sometimes, the problem isn't the idea. It's the example."},
+ {"id":"swap","text":"One tap, and the same problem comes back in a world this learner knows. The example changed. The goal didn't."},
+ {"id":"origin","text":"DISMODO started with its founder, Shamuel, for whom learning has often cost more than it should. Too often, one struggle becomes an identity: I'm bad at math. DISMODO treats a struggle as a question to investigate, not a label."},
+ {"id":"reveal","text":"DISMODO is an adaptive learning engine, for builders and AI agents."},
+ {"id":"package","text":"Builders bring what to teach and how to check it: a versioned package with the objective, the activity, familiar contexts, known confusions, and reviewed explanations. DISMODO validates it before anything ships."},
+ {"id":"mistake","text":"Now, practice. The learner marks six of eight tasks, and says they're sure. Confident, but wrong, right after an explanation."},
+ {"id":"wonder","text":"That's a critical moment, so the engine escalates from Muse Spark to Muse Wonder. The model never writes to the learner. It picks one move from a closed list, and a hypothesis the builder already reviewed."},
+ {"id":"pushback","text":"And the learner can push back. Their words guide the next step, but they never change a result."},
+ {"id":"proof","text":"Then, new problems, held out from practice, with no hints. Two out of two. Graded by a deterministic evaluator, never by a model."},
+ {"id":"trace","text":"Every decision is traced: what was observed, what was interpreted and by whom, what the learner said, and what hasn't been checked yet."},
+ {"id":"acme","text":"The same engine runs inside other products. Acme embeds it under its own brand, with its own package, written by Muse Code, without touching the engine."},
+ {"id":"mcp","text":"And AI agents can use it through MCP: find an experience, start a session, and read the evidence."},
+ {"id":"claim","text":"You decide what to teach. DISMODO adapts how, and shows its work."}
+]

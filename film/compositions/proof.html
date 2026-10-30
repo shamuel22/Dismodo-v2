@@ -1,0 +1,31 @@
+<template>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #141517; }
+    .pf-cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+    .pf-cam img { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #pf-eval { position: absolute; left: 0; right: 0; top: 900px; text-align: center; font: 400 34px/1.4 'JetBrains Mono', monospace; color: #AAA8AD; }
+    #pf-eval b { font-weight: 400; color: #F3F0E9; }
+  </style>
+  <div data-hf-id="hf-s4mz" id="root" data-composition-id="proof" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-2nue" id="pf-cam" class="pf-cam">
+      <img data-hf-id="hf-qtqo" id="pf-p14" src="assets/ui/14-item-right.png" alt="" />
+      <img data-hf-id="hf-qje9" id="pf-p18" src="assets/ui/18-done.png" alt="" style="opacity:0" />
+    </div>
+    <div data-hf-id="hf-pkq9" id="pf-eval" class="clip" data-start="7.8" data-duration="3.2"><div data-hf-id="hf-4mor" id="pf-eval-in">graded by <b data-hf-id="hf-2x05">fraction-of-set.v1</b> · deterministic</div></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const cam = (cx, cy, s) => ({ x: 960 - s * cx, y: 540 - s * cy, scale: s });
+    tl.fromTo('#pf-cam', { ...cam(959, 432, 1.55), opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' }, 0);
+    // "held out ... no hints": push in on the real label of the item.
+    tl.to('#pf-cam', { ...cam(900, 230, 2.5), duration: 0.8, ease: 'power2.inOut' }, 2.2);
+    // "Two out of two": the session summary.
+    tl.to('#pf-p14', { opacity: 0, filter: 'blur(8px)', duration: 0.15, ease: 'power2.in' }, 4.9);
+    tl.fromTo('#pf-p18', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.15, ease: 'power2.out' }, 4.98);
+    tl.to('#pf-cam', { ...cam(959, 241, 2.0), duration: 0.6, ease: 'power2.inOut' }, 4.98);
+    tl.fromTo('#pf-eval-in', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 7.9);
+    tl.to(['#pf-cam', '#pf-eval-in'], { opacity: 0, filter: 'blur(10px)', duration: 0.25, ease: 'power3.in' }, 10.72);
+    window.__timelines['proof'] = tl;
+  </script>
+</template>

@@ -1,0 +1,38 @@
+<template>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.woff2') format('woff2'); font-weight: 300 700; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #141517; }
+    #ac-flood { position: absolute; inset: 0; background: #F8FAFC; }
+    .ac-cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+    .ac-cam img { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #ac-note { position: absolute; left: 0; right: 0; top: 964px; text-align: center; font: 400 32px/1.4 Inter, sans-serif; color: #475569; }
+    #ac-note code { font: 400 30px 'JetBrains Mono', monospace; color: #0F172A; }
+  </style>
+  <div data-hf-id="hf-qq6h" id="root" data-composition-id="acme" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-pfsy" id="ac-flood"></div>
+    <div data-hf-id="hf-fmki" id="ac-cam" class="ac-cam">
+      <img data-hf-id="hf-wx0r" id="ac-home" src="assets/ui/b-acme-home.png" alt="" />
+      <img data-hf-id="hf-nive" id="ac-practice" src="assets/ui/b-acme-practice.png" alt="" style="opacity:0" />
+    </div>
+    <div data-hf-id="hf-dqhu" id="ac-note" class="clip" data-start="6.5" data-duration="3.9"><div data-hf-id="hf-zscd" id="ac-note-in"><code data-hf-id="hf-2df0">halves-vs-quarters@1.0.0</code> · written by Muse Code · no engine changes</div></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const cam = (cx, cy, s) => ({ x: 960 - s * cx, y: 540 - s * cy, scale: s });
+    // Colour flood: the ground turns to Acme's light portal.
+    tl.fromTo('#ac-flood', { clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(75% at 50% 50%)', duration: 0.45, ease: 'power2.inOut' }, 0);
+    tl.fromTo('#ac-cam', { ...cam(960, 300, 1.45), opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power2.out' }, 0.35);
+    tl.to('#ac-cam', { ...cam(960, 280, 1.6), duration: 3.0, ease: 'power2.inOut' }, 0.6);
+    // "embeds it": the start button opens the embedded DISMODO session inside Acme's page.
+    tl.to('#ac-home', { opacity: 0, filter: 'blur(8px)', duration: 0.15, ease: 'power2.in' }, 4.2);
+    tl.fromTo('#ac-practice', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.15, ease: 'power2.out' }, 4.28);
+    tl.to('#ac-cam', { ...cam(960, 540, 1.12), duration: 0.7, ease: 'power2.inOut' }, 4.28);
+    tl.to('#ac-cam', { ...cam(960, 560, 1.0), duration: 0.6, ease: 'power2.inOut' }, 6.3);
+    tl.fromTo('#ac-note-in', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power4.out' }, 6.6);
+    tl.to('#ac-note-in', { opacity: 0, duration: 0.15 }, 10.2);
+    // "without touching the engine": into the embedded session, the same runtime as DISMODO's own.
+    tl.to('#ac-cam', { ...cam(960, 420, 1.55), duration: 1.2, ease: 'power2.inOut' }, 8.6);
+    tl.to(['#ac-cam', '#ac-flood'], { opacity: 0, duration: 0.25, ease: 'power3.in' }, 11.72);
+    window.__timelines['acme'] = tl;
+  </script>
+</template>

@@ -33,6 +33,7 @@ All code in this repository was written during the event. The git history is una
 | TypeScript SDK | `packages/sdk` | E6 | **Built by Muse Code** from task `docs/muse-tasks/001-sdk.md`; reviewed and merged by the lead engineer (one test type fix). |
 | Deployment files | `deploy/` | E10 | **Built by Muse Code** (task `docs/muse-tasks/003-deploy.md`, run through the Meta Model API): Docker images, production compose, Caddy with TLS, backups and a VPS guide. The lead engineer fixed two build issues and verified the whole stack locally. |
 | Adapters guide | `apps/web/src/docs/content/09-adapters.md` | E8 | **Built by Muse Code** (task `docs/muse-tasks/004-adapters-guide.md`): how to add a new activity family, written from the code; reviewed and merged. |
+| Demo film | `film/`, `scripts/film-*.mjs` | E11 | A 2:34 film for the judges, built with HyperFrames from real captures of a live session (Muse Spark and Muse Wonder answering live), real CLI and MCP output; narration, music and effects generated with ElevenLabs. |
 | Builder variant package | `examples/acme-onboarding/` | E6 | **Built by Muse Code** acting as a second, independent builder (task `docs/muse-tasks/002-variant-package.md`): `halves-vs-quarters@1.0.0`, valid with no engine changes. |
 
 ## Prior materials (created before the hackathon)
@@ -51,6 +52,8 @@ All code in this repository was written during the event. The git history is una
 | **Muse Wonder 1.0** (Meta Model API) | Runs inside the engine as the critical decision tier for escalated moments (rejected hypothesis, repeated mistake, confident but incorrect after support), and drafts experience packages for builders from their notes. |
 | **Muse Code with Muse Wonder** (Meta) | Second development agent working from written task specs in isolated git worktrees; built the TypeScript SDK, the Acme variant package, the deployment files and the adapters guide (after its subscription quota ran out, through the Meta Model API directly). Its commits carry `Co-Authored-By: Muse Code`; every change was reviewed before merge. |
 | **Claude Code** (Anthropic Opus 5.5) | Lead engineering agent under the founder's direction; its commits carry `Co-Authored-By: Claude`. |
+| **ElevenLabs** (voice, music, sound effects) | Generated the film's narration, ambient music and sound effects from scripts written for the film. |
+| **HyperFrames** (HeyGen, open source) | Renders the demo film from HTML scenes; not part of the product. |
 | **Codex** (OpenAI GPT-6.1) | Read-only design and security reviewer at stage boundaries (contract, isolation, adaptation). Wrote no project code; findings and resolutions are logged in `PLAN_DESARROLLO.md`. |
 
 All AI-generated code and content is reviewed before merge. Grading is done by deterministic evaluators, never by a model.

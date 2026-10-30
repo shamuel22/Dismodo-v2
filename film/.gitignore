@@ -1,0 +1,6 @@
+renders/
+.hyperframes/
+assets/vo/raw/
+node_modules/
+.thumbnails/
+.waveform-cache/

@@ -3,7 +3,16 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/drizzle/**', '.worktrees/**'] },
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/coverage/**',
+      '**/drizzle/**',
+      '.worktrees/**',
+      'film/**',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
