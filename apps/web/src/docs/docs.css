@@ -147,7 +147,7 @@
   }
 }
 
-/* Reading column (DESIGN.md §5: 60–75 characters). */
+/* Reading column (the design spec §5: 60–75 characters). */
 .doc {
   max-width: var(--measure);
 }

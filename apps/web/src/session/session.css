@@ -66,7 +66,7 @@
     padding: var(--space-5) var(--space-4);
   }
 }
-/* Adaptive support uses the plum surface sparingly (DESIGN.md §4: contextual AI accent). */
+/* Adaptive support uses the plum surface sparingly (the design spec §4: contextual AI accent). */
 .session__card--support {
   background: var(--color-plum-surface);
   border-color: rgb(179 156 255 / 22%);

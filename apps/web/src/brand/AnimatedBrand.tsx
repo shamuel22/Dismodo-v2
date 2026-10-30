@@ -2,7 +2,7 @@ import { LOGO_URL } from './constants';
 import './brand.css';
 
 /**
- * Horizontal brand (DESIGN.md §6, §9): the approved logo PNG used as an atlas. Both book pages are the same
+ * Horizontal brand (the design spec §6, §9): the approved logo PNG used as an atlas. Both book pages are the same
  * symbol crop with complementary masks around the spine; the wordmark slides out from behind the book.
  * Purely decorative: the accessible name is the surrounding h1 text.
  */

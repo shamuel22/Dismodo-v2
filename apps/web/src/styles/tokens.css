@@ -1,4 +1,4 @@
-/* Design tokens from DESIGN.md v3.0 (§4 color, §5 type, §12 spacing and radii, §9 motion). Single source. */
+/* Design tokens from the design spec (v3.0) (§4 color, §5 type, §12 spacing and radii, §9 motion). Single source. */
 :root {
   --color-background: #141517;
   --color-background-deep: #101113;

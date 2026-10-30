@@ -5,7 +5,7 @@ const AFTER_SPACE_MS = 39;
 const CURSOR_LINGER_MS = 4000;
 
 /**
- * Types the phrase once (DESIGN.md §9). Screen readers get the full phrase immediately; the typing layer is
+ * Types the phrase once (the design spec §9). Screen readers get the full phrase immediately; the typing layer is
  * hidden from them. A hidden duplicate reserves the final size so nothing below moves while it grows.
  */
 export function TypewriterQuote({

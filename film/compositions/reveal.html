@@ -36,7 +36,7 @@
     const unit = 150 / 340;
     const bookStart = ((327 + 1465) * unit + 34 - 327 * unit) / 2;
     const T0 = 0.3; // the impact of the riser lands here
-    // DESIGN.md §9: pages open in 0.95 s; the book glides left at +0.51 s; the name emerges at +0.65 s.
+    // the design spec §9: pages open in 0.95 s; the book glides left at +0.51 s; the name emerges at +0.65 s.
     tl.fromTo('#reveal-left', { rotateY: 83 }, { rotateY: 0, duration: 0.95, ease: 'expo.out' }, T0);
     tl.fromTo('#reveal-right', { rotateY: -83 }, { rotateY: 0, duration: 0.95, ease: 'expo.out' }, T0);
     tl.fromTo('#reveal-book', { x: bookStart }, { x: 0, duration: 1.19, ease: 'expo.out' }, T0 + 0.51);

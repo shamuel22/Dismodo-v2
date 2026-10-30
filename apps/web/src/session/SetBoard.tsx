@@ -18,7 +18,7 @@ function columnsFor(total: number): number {
 }
 
 /**
- * The set, rendered from the engine's data (DESIGN.md §12: quantities come from data, never from pictures).
+ * The set, rendered from the engine's data (the design spec §12: quantities come from data, never from pictures).
  * In "select" items each element is a toggle; arrow keys move between them, Space or Enter toggles.
  * In "identify" items the marked elements are shown and nothing is interactive.
  */

@@ -7,7 +7,7 @@ import { ScrollRevealSection } from './ScrollRevealSection';
 import { TypewriterQuote } from './TypewriterQuote';
 import './landing.css';
 
-/** Phrase typing starts after the brand has opened (DESIGN.md §9). */
+/** Phrase typing starts after the brand has opened (the design spec §9). */
 const PHRASE_START_MS = 1750;
 
 export function LandingPage() {
@@ -36,7 +36,7 @@ export function LandingPage() {
             <AnimatedBrand state={reducedMotion ? 'final' : playing ? 'playing' : 'pending'} />
           </h1>
           <TypewriterQuote text={HERO_PHRASE} startDelayMs={PHRASE_START_MS} reducedMotion={reducedMotion} />
-          {/* Founder's request (takes precedence over DESIGN.md §8): the documentation is where DISMODO is explained. */}
+          {/* Founder's request (takes precedence over the design spec §8): the documentation is where DISMODO is explained. */}
           <Link to="/docs" className="button button--primary hero__cta">
             View documentation
           </Link>

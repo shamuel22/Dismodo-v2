@@ -1,4 +1,4 @@
-// Checks DESIGN.md §17 criteria that can be measured automatically. Usage: node scripts/design-check.mjs <outDir>
+// Checks the design spec §17 criteria that can be measured automatically. Usage: node scripts/design-check.mjs <outDir>
 import { chromium } from 'playwright';
 
 const out = process.argv[2] ?? '.';

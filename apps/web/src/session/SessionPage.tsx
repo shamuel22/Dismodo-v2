@@ -213,7 +213,7 @@ function SessionFrame({
   );
 }
 
-/** Real counts only (DESIGN.md §13): practice and the independent check, never a decorative percentage. */
+/** Real counts only (the design spec §13): practice and the independent check, never a decorative percentage. */
 function Progress({ view }: { view: LearnerView }) {
   const { practice, independent } = view.progress;
   const checking = view.phase === 'independent' || view.phase === 'done';
@@ -396,7 +396,7 @@ function FeedbackStep({
       </h2>
       <p className="session__feedback">{feedback}</p>
 
-      {/* Confidence is asked separately from the result (DESIGN.md §13) and is optional. */}
+      {/* Confidence is asked separately from the result (the design spec §13) and is optional. */}
       {step.can_rate ? (
         <div className="session__rating">
           <p className="session__rating-question">How sure were you when you answered?</p>

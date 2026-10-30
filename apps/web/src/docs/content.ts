@@ -38,7 +38,7 @@ function parse(source: string): DocPage {
   };
 }
 
-/** Pages in file order (01-…, 02-…): the order DESIGN.md §11 sets for the documentation. */
+/** Pages in file order (01-…, 02-…): the order the design spec §11 sets for the documentation. */
 export const DOC_PAGES: DocPage[] = Object.keys(sources)
   .sort()
   .map((path) => parse(sources[path]!));

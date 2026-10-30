@@ -4,7 +4,7 @@ const MIN_SCROLL_PX = 8;
 
 /**
  * Reveals its content only after a real downward scroll brings it into the top 91% of the viewport
- * (DESIGN.md §10). Time, the intro or an initial intersection on a tall screen never reveal it.
+ * (the design spec §10). Time, the intro or an initial intersection on a tall screen never reveal it.
  * Once revealed it stays visible for the rest of the visit.
  */
 export function ScrollRevealSection({ children, id }: { children: ReactNode; id?: string }) {

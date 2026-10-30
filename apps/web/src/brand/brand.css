@@ -1,5 +1,5 @@
 /*
- * Atlas geometry for the approved 2172 × 724 logo (DESIGN.md §6, §9). With symbol height S:
+ * Atlas geometry for the approved 2172 × 724 logo (the design spec §6, §9). With symbol height S:
  *   symbol crop (154, 206, 327, 340), wordmark crop (554, 286, 1465, 213).
  * The spine sits at x = 298 in the atlas, 144 px into the symbol crop (≈ 44%).
  */
@@ -111,7 +111,7 @@
   opacity: 0;
 }
 
-/* Intro (DESIGN.md §9 timeline): opens once, the book glides left, the name emerges from the spine. */
+/* Intro (the design spec §9 timeline): opens once, the book glides left, the name emerges from the spine. */
 .brand--playing .brand__book {
   animation: brand-book-move 1190ms 510ms var(--ease-brand) both;
 }

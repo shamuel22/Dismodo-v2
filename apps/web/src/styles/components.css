@@ -1,4 +1,4 @@
-/* Shared controls (DESIGN.md §12). Used by the site and inside the embeddable <dismodo-session>. */
+/* Shared controls (the design spec §12). Used by the site and inside the embeddable <dismodo-session>. */
 :focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 3px;
@@ -17,7 +17,7 @@
   border: 0;
 }
 
-/* Buttons (DESIGN.md §12): one primary per context. */
+/* Buttons (the design spec §12): one primary per context. */
 .button {
   display: inline-flex;
   align-items: center;

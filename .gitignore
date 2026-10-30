@@ -15,3 +15,8 @@ test-results/
 .worktrees/
 
 deploy/backups/
+
+# Internal process documents: kept local, never published
+DISMODO_BRIEF_HACKATHON.md
+PLAN_DESARROLLO.md
+DESIGN.md

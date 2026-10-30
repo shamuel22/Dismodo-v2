@@ -24,7 +24,7 @@ All code in this repository was written during the event. The git history is una
 | Session engine | `packages/engine`, `apps/api` | E3 | Event-sourced sessions (append-only log enforced by a database trigger), learner link tokens kept out of URLs, idempotent submissions, evidence report computed only from events. |
 | Adaptive decisions | `packages/adaptation`, `apps/api` | E4 | Provider-agnostic decision models (Meta Model API, OpenAI-compatible, Anthropic), Muse Spark routine tier and Muse Wonder critical tier, controller checks, editorial fallback, model-call traces and metrics. |
 | Memory per skill | `apps/api`, `packages/engine` | E5 | Short, tenant- and skill-scoped history with recorded effects, learner history view and reset. |
-| Web app | `apps/web`, `apps/api` | E6 | Landing per `DESIGN.md` (animated brand from the approved logo, typed phrase, scroll-only reveal), public playground endpoint, learner evidence, web app served by the API. |
+| Web app | `apps/web`, `apps/api` | E6 | Landing per the founder's design spec (animated brand from the approved logo, typed phrase, scroll-only reveal), public playground endpoint, learner evidence, web app served by the API. |
 | Embeddable session | `apps/web/src/embed.tsx` | E7 | `<dismodo-session>` Web Component in a shadow root, served by the API; CORS limited to learner-link routes. |
 | Second product (example) | `examples/acme-onboarding/` | E7 | A separate portal with its own brand and key that publishes its own package, starts sessions with the SDK, embeds the session and shows managers the evidence. |
 | MCP server | `apps/mcp` | E8 | Consumer tools `search_experiences`, `start_session`, `get_evidence` over stdio and Streamable HTTP, built on the SDK; tested with the official MCP client and Claude Code. |
@@ -40,8 +40,8 @@ All code in this repository was written during the event. The git history is una
 
 | Material | Notes |
 | --- | --- |
-| Product brief (`DISMODO_BRIEF_HACKATHON.md`) | Founder's product definition. Planning document, not code. |
-| UI/UX direction (`DESIGN.md`) | Founder's identity and interface rules (v3.0, Oct 29, 2026). |
+| Product brief | Founder's product definition. Internal planning document, not code; kept private. |
+| UI/UX direction (design spec) | Founder's identity and interface rules (v3.0, Oct 29, 2026); kept private. |
 | Brand assets (`logo_dismodo.png`, `icono_fondo.png`) | Approved logo and icon provided by the founder; used unchanged (favicons are resized copies of the icon). |
 
 ## AI tools used
@@ -54,6 +54,6 @@ All code in this repository was written during the event. The git history is una
 | **Claude Code** (Anthropic Opus 5.5) | Lead engineering agent under the founder's direction; its commits carry `Co-Authored-By: Claude`. |
 | **ElevenLabs** (voice, music, sound effects) | Generated the film's narration, ambient music and sound effects from scripts written for the film. |
 | **HyperFrames** (HeyGen, open source) | Renders the demo film from HTML scenes; not part of the product. |
-| **Codex** (OpenAI GPT-6.1) | Read-only design and security reviewer at stage boundaries (contract, isolation, adaptation). Wrote no project code; findings and resolutions are logged in `PLAN_DESARROLLO.md`. |
+| **Codex** (OpenAI GPT-6.1) | Read-only design and security reviewer at stage boundaries (contract, isolation, adaptation). Wrote no project code; each finding was fixed with a test before merge (internal build log kept private). |
 
 All AI-generated code and content is reviewed before merge. Grading is done by deterministic evaluators, never by a model.
