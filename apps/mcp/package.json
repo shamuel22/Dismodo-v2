@@ -1,0 +1,21 @@
+{
+  "name": "@dismodo/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "dismodo-mcp": "./bin/dismodo-mcp.js"
+  },
+  "scripts": {
+    "stdio": "tsx --env-file-if-exists=../../.env src/stdio.ts",
+    "http": "tsx --env-file-if-exists=../../.env src/http.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dismodo/sdk": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.7"
+  }
+}

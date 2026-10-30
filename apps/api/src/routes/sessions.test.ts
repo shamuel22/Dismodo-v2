@@ -275,3 +275,15 @@ describe('sessions', () => {
     expect((await runtime(token)).json().error.code).toBe('rate_limited');
   });
 });
+
+describe('experience search', () => {
+  it('matches every word, tolerating simple plurals', async () => {
+    const ids = async (q: string) =>
+      (await call('GET', `/v1/experiences?q=${encodeURIComponent(q)}`, keys.a))
+        .json()
+        .experiences.map((e: { experience_id: string }) => e.experience_id);
+    expect(await ids('quarters')).toContain(experienceId);
+    expect(await ids('quarter of a set')).toContain(experienceId);
+    expect(await ids('quarters chemistry')).not.toContain(experienceId);
+  });
+});

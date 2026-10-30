@@ -51,7 +51,7 @@ export function llmsRoutes(app: FastifyInstance, deps: { docsDir: string; public
     '',
     '> Adaptive learning engine. Builders publish versioned experience packages (objective, activity, evaluator, contexts, reviewed support); DISMODO runs sessions, adapts support with Meta Muse Spark / Muse Wonder within package limits, grades only with deterministic evaluators and returns evidence computed from events.',
     '',
-    'Key facts for agents: REST API with Bearer keys (scopes packages:write, experiences:read, sessions:write, evidence:read); learner links carry a token after "#"; package JSON Schema at /v1/schemas/experience.json; registered components at /v1/components; public playground at POST /v1/playground/sessions (no key). The MCP server is planned, not yet available.',
+    'Key facts for agents: REST API with Bearer keys (scopes packages:write, experiences:read, sessions:write, evidence:read); learner links carry a token after "#"; package JSON Schema at /v1/schemas/experience.json; registered components at /v1/components; public playground at POST /v1/playground/sessions (no key). MCP server (Preview): tools search_experiences, start_session, get_evidence over stdio or Streamable HTTP; see the MCP page.',
     '',
     '## Documentation',
     '',

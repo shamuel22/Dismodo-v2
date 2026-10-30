@@ -135,6 +135,22 @@ async function recordModelCalls(
   if (rows.length) await tx.insert(modelCalls).values(rows);
 }
 
+/** Words of a search query, lowercased; short words are dropped. */
+export function searchTerms(query: string | undefined): string[] {
+  return (query ?? '')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length >= 3);
+}
+
+/** Every term must appear in some field, allowing simple plurals ("quarters" finds "quarter"). */
+export function matches(terms: string[], fields: string[]): boolean {
+  const text = fields.join(' ').toLowerCase();
+  return terms.every((term) =>
+    [term, term.replace(/(es|s)$/, '')].some((form) => form.length >= 3 && text.includes(form)),
+  );
+}
+
 export function createSessionService(deps: SessionServiceDeps) {
   const { db, registry } = deps;
   const now = deps.now ?? (() => new Date());
@@ -546,7 +562,7 @@ export function createSessionService(deps: SessionServiceDeps) {
         const current = latest.get(key);
         if (!current || compareSemVer(row.version, current.version) > 0) latest.set(key, row);
       }
-      const q = query?.toLowerCase().trim();
+      const terms = searchTerms(query);
       return [...latest.values()]
         .map((row) => {
           const runtime = runtimeFor(registry, row);
@@ -568,10 +584,7 @@ export function createSessionService(deps: SessionServiceDeps) {
             activity: row.activityRevision,
           };
         })
-        .filter(
-          (e) =>
-            !q || [e.title, e.objective, e.summary, e.skill.name].some((t) => t.toLowerCase().includes(q)),
-        )
+        .filter((e) => matches(terms, [e.title, e.objective, e.summary, e.skill.name, e.experience_id]))
         .sort((a, b) => a.experience_id.localeCompare(b.experience_id));
     },
   };

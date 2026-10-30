@@ -27,6 +27,7 @@ All code in this repository was written during the event. The git history is una
 | Web app | `apps/web`, `apps/api` | E6 | Landing per `DESIGN.md` (animated brand from the approved logo, typed phrase, scroll-only reveal), public playground endpoint, learner evidence, web app served by the API. |
 | Embeddable session | `apps/web/src/embed.tsx` | E7 | `<dismodo-session>` Web Component in a shadow root, served by the API; CORS limited to learner-link routes. |
 | Second product (example) | `examples/acme-onboarding/` | E7 | A separate portal with its own brand and key that publishes its own package, starts sessions with the SDK, embeds the session and shows managers the evidence. |
+| MCP server | `apps/mcp` | E8 | Consumer tools `search_experiences`, `start_session`, `get_evidence` over stdio and Streamable HTTP, built on the SDK; tested with the official MCP client and Claude Code. |
 | TypeScript SDK | `packages/sdk` | E6 | **Built by Muse Code** from task `docs/muse-tasks/001-sdk.md`; reviewed and merged by the lead engineer (one test type fix). |
 | Builder variant package | `examples/acme-onboarding/` | E6 | **Built by Muse Code** acting as a second, independent builder (task `docs/muse-tasks/002-variant-package.md`): `halves-vs-quarters@1.0.0`, valid with no engine changes. |
 
