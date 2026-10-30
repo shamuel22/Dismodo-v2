@@ -2,7 +2,7 @@
   "name": "dismodo",
   "private": true,
   "version": "0.1.0",
-  "description": "DISMODO — adaptive learning engine for builders and AI agents",
+  "description": "DISMODO \u2014 adaptive learning engine for builders and AI agents",
   "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@11.22.0",
@@ -22,7 +22,8 @@
     "db:migrate": "pnpm --filter @dismodo/api db:migrate",
     "seed": "pnpm --filter @dismodo/api seed",
     "tenant:create": "pnpm --filter @dismodo/api tenant:create",
-    "dismodo": "node packages/cli/bin/dismodo.js"
+    "dismodo": "node packages/cli/bin/dismodo.js",
+    "acceptance": "bash scripts/acceptance.sh"
   },
   "devDependencies": {
     "@dismodo/sdk": "workspace:*",

@@ -7,9 +7,11 @@ Read first: `README.md`, `package.json` (root scripts), `apps/api/src/index.ts`,
 `docker-compose.yml` (dev database only).
 
 ## Goal
+
 Production deployment for one Ubuntu 24.04 VPS (4 CPU, 8 GB RAM) with one public domain.
 
 ## Allowed files (create only these; do not modify any other file)
+
 - `deploy/Dockerfile` — multi-stage: install with pnpm (corepack), build `@dismodo/web`
   (`pnpm --filter @dismodo/web build`), final image runs the API with `tsx` as a non-root user. The final image
   must contain: the workspace packages the API imports at runtime, `apps/web/dist`, `apps/web/src/docs/content`
@@ -29,22 +31,25 @@ Production deployment for one Ubuntu 24.04 VPS (4 CPU, 8 GB RAM) with one public
 - `deploy/backup.sh` — `pg_dump` from the db container to a dated, gzipped file in `deploy/backups/`, keeping
   the last 14; safe `set -euo pipefail`; documented cron line in a comment.
 - `deploy/README.md` — step-by-step for a fresh Ubuntu 24.04 VPS: Docker install, DNS, copy env, `docker compose
-  -f deploy/docker-compose.prod.yml up -d --build`, seeding (`pnpm seed` equivalent inside the api container),
+-f deploy/docker-compose.prod.yml up -d --build`, seeding (`pnpm seed` equivalent inside the api container),
   creating a tenant key, backups/cron, updating, checking logs. Plain English, honest about what was not tested.
 
 ## Constraints
+
 - Do not change application code. If something cannot work without a code change, write it in deploy/README.md
   under "Open questions" instead.
-- No secrets in files. No `latest` tags except official base images pinned by major (node:24-*, postgres:17-*,
+- No secrets in files. No `latest` tags except official base images pinned by major (node:24-_, postgres:17-_,
   caddy:2-*).
 
 ## Verify before finishing
+
 ```
 docker build -f deploy/Dockerfile -t dismodo-api:test .
 docker build -f deploy/Dockerfile.mcp -t dismodo-mcp:test .
 docker compose -f deploy/docker-compose.prod.yml config >/dev/null
 bash -n deploy/backup.sh
 ```
+
 If Docker is not available in your sandbox, say so in your final message and still check the files carefully.
 Commit on the current branch with a message ending with:
 `Co-Authored-By: Muse Code <noreply@meta.com>`
