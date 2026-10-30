@@ -111,7 +111,7 @@ Invalid responses come first in the order: a response of the wrong shape, or nam
 
 ## Registering components
 
-Build a registry with `createRegistry(activities, evaluators)` from `packages/activities/src/registry.ts` and pass it wherever packages are validated or sessions run. The engine's `builtinRegistry` is built this way from the shipped components. Registration is plain code:
+Build a registry with `createRegistry(activities, evaluators)` from `packages/activities/src/registry.ts` and pass it wherever packages are validated or sessions run. The `builtinRegistry` in `packages/activities` is built this way from the shipped components. Registration is plain code:
 
 ```ts
 export const builtinRegistry: ComponentRegistry = createRegistry(
@@ -214,11 +214,7 @@ export const stepOrder: ActivityAdapter<
   specIdentity: (spec) => `${spec.procedure_id}:${spec.steps.join('>')}`,
   enumerateSpecs: (params) => {
     const specs = params.procedures
-      .filter(
-        (p) =>
-          p.steps.length >= params.step_counts.min &&
-          p.steps.length <= params.step_counts.max,
-      )
+      .filter((p) => p.steps.length >= params.step_counts.min && p.steps.length <= params.step_counts.max)
       .map((p) => ({ procedure_id: p.id, steps: p.steps }));
     if (specs.length > MAX_CANDIDATES) throw new Error('Candidate pool exceeds MAX_CANDIDATES.');
     return specs;
@@ -241,11 +237,7 @@ export const stepOrder: ActivityAdapter<
   }),
 };
 
-export const stepOrderGrader: EvaluatorAdapter<
-  Record<string, never>,
-  StepOrderSpec,
-  StepOrderResponse
-> = {
+export const stepOrderGrader: EvaluatorAdapter<Record<string, never>, StepOrderSpec, StepOrderResponse> = {
   ref: 'step-order-grader.v1',
   revision: 'step-order-grader.v1+r1',
   description: 'Grades an ordering by how it differs from the correct order.',
