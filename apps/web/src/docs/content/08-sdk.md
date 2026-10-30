@@ -47,6 +47,17 @@ if (view.step.kind === 'item') {
 
 Errors are thrown as `DismodoApiError` with `status`, `code` and `details`.
 
+## Embedding the learner page
+
+**Status: Preview.** Add the session to any page with one script and one element. Its styles live in a shadow root, so your page's CSS and DISMODO's never mix.
+
+```html
+<script type="module" src="https://your-dismodo-host/embed/dismodo-session.js"></script>
+<dismodo-session token="TOKEN_FROM_THE_LEARNER_LINK" api="https://your-dismodo-host"></dismodo-session>
+```
+
+The token is the part of `session.url` after `#` (`tokenFromSessionUrl` extracts it). The element emits a `dismodo:change` event after each step. Only learner-link routes accept cross-origin calls; keep your API key on your server.
+
 ## CLI
 
 **Status: Preview**, in the repository at `packages/cli`:
@@ -59,4 +70,4 @@ pnpm dismodo publish my-experience@1.0.0 --reviewer "Name"
 
 ## A second builder, end to end
 
-`examples/acme-onboarding` contains a package written by an independent builder — `halves-vs-quarters@1.0.0` — that changes the objective and condition of the activity without any engine change.
+`examples/acme-onboarding` is a second product on the same engine: a workplace-training portal with its own look and key. It publishes a package written by an independent builder — `halves-vs-quarters@1.0.0`, which changes the objective and condition of the activity without any engine change — starts sessions through the SDK, embeds `<dismodo-session>` and shows managers the evidence. Its README explains how to run it.

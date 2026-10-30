@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import { sql } from 'drizzle-orm';
 import { builtinRegistry } from '@dismodo/activities';
@@ -101,6 +102,20 @@ export function buildServer({
     }
   });
 
+  // Cross-origin access only where a third-party page embeds a session: the learner-link endpoints (token in
+  // a header, no cookies) and the embed script. Keyed API routes stay same-origin/server-to-server.
+  void app.register(cors, {
+    delegator: (request, callback) => {
+      const url = request.url ?? '';
+      const open = url.startsWith('/v1/runtime/') || url.startsWith('/embed/');
+      callback(
+        null,
+        open
+          ? { origin: '*', methods: ['GET', 'POST'], allowedHeaders: ['Authorization', 'Content-Type'] }
+          : { origin: false },
+      );
+    },
+  });
   // Opt-in per route: learner-facing endpoints are public and need a ceiling.
   void app.register(rateLimit, { global: false });
   const auth = authenticator(db);

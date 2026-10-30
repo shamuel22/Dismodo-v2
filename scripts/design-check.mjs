@@ -18,7 +18,11 @@ for (const width of [1440, 1024, 768, 390, 320]) {
     const r = el.getBoundingClientRect();
     const word = el.querySelector('.brand__word').getBoundingClientRect();
     const book = el.querySelector('.brand__book').getBoundingClientRect();
-    return { fits: r.left >= 0 && r.right <= window.innerWidth, wordRightOfBook: word.left >= book.right - 1, sameRow: Math.abs((word.top + word.bottom) / 2 - (book.top + book.bottom) / 2) < 2 };
+    return {
+      fits: r.left >= 0 && r.right <= window.innerWidth,
+      wordRightOfBook: word.left >= book.right - 1,
+      sameRow: Math.abs((word.top + word.bottom) / 2 - (book.top + book.bottom) / 2) < 2,
+    };
   });
   results[width] = {
     noLayoutShift: Math.abs(after - before) < 1,
@@ -35,7 +39,9 @@ for (const width of [1440, 1024, 768, 390, 320]) {
 const zoom = await browser.newPage({ viewport: { width: 720, height: 450 } });
 await zoom.goto(base + '/', { waitUntil: 'networkidle' });
 await zoom.waitForTimeout(6500);
-results.zoom200 = { overflowX: await zoom.evaluate(() => document.documentElement.scrollWidth > window.innerWidth) };
+results.zoom200 = {
+  overflowX: await zoom.evaluate(() => document.documentElement.scrollWidth > window.innerWidth),
+};
 await zoom.screenshot({ path: `${out}/landing-zoom200.png`, fullPage: true });
 
 // Keyboard: the hidden section offers no focusable controls; the docs link works before the intro ends.
@@ -46,9 +52,16 @@ await kb.mouse.click(5, 400); // give the page focus without hitting a control
 const focusOrder = [];
 for (let i = 0; i < 6; i++) {
   await kb.keyboard.press('Tab');
-  focusOrder.push(await kb.evaluate(() => document.activeElement?.textContent?.trim() || document.activeElement?.getAttribute('aria-label')));
+  focusOrder.push(
+    await kb.evaluate(
+      () => document.activeElement?.textContent?.trim() || document.activeElement?.getAttribute('aria-label'),
+    ),
+  );
 }
-results.keyboard = { focusOrder, hiddenSectionNotFocusable: !focusOrder.includes('Explore the documentation') };
+results.keyboard = {
+  focusOrder,
+  hiddenSectionNotFocusable: !focusOrder.includes('Explore the documentation'),
+};
 await kb.reload({ waitUntil: 'domcontentloaded' });
 await kb.waitForSelector('.hero__cta'); // rendered; the intro is still playing
 await kb.focus('.landing__nav-link');

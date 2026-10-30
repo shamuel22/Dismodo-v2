@@ -1,0 +1,15 @@
+{
+  "name": "@dismodo-example/acme-onboarding",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A second product built on DISMODO: Acme's own interface, key and experience package.",
+  "scripts": {
+    "start": "tsx --env-file-if-exists=.env server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dismodo/sdk": "workspace:*",
+    "tsx": "^4.23.15"
+  }
+}

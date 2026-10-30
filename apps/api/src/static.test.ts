@@ -42,3 +42,23 @@ describe('web app and llms.txt served by the API', () => {
     expect((await app.inject({ url: '/llms-full.txt' })).body).toContain('# API reference');
   });
 });
+
+describe('cross-origin access', () => {
+  it('allows embedding pages to call learner-link routes, not keyed routes', async () => {
+    const preflight = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/runtime/events',
+      headers: {
+        origin: 'https://acme.example',
+        'access-control-request-method': 'POST',
+        'access-control-request-headers': 'authorization,content-type',
+      },
+    });
+    expect(preflight.headers['access-control-allow-origin']).toBe('*');
+    expect(String(preflight.headers['access-control-allow-headers']).toLowerCase()).toContain(
+      'authorization',
+    );
+    const keyed = await app.inject({ url: '/v1/packages', headers: { origin: 'https://acme.example' } });
+    expect(keyed.headers['access-control-allow-origin']).toBeUndefined();
+  });
+});

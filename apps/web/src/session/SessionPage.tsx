@@ -57,16 +57,20 @@ export function SessionPage({
   token: givenToken,
   embedded = false,
   onChange,
+  apiBase,
 }: {
   token?: string;
   embedded?: boolean;
+  /** DISMODO API origin; defaults to this page's origin (embeds on other sites pass it). */
+  apiBase?: string;
   /** Called after the view loads or changes (the playground refreshes its decision trace). */
   onChange?: () => void;
 }) {
   const token = useMemo(() => givenToken ?? takeToken(), [givenToken]);
   const client = useMemo<RuntimeClient | null>(
-    () => (token ? createRuntimeClient({ baseUrl: window.location.origin, sessionToken: token }) : null),
-    [token],
+    () =>
+      token ? createRuntimeClient({ baseUrl: apiBase ?? window.location.origin, sessionToken: token }) : null,
+    [token, apiBase],
   );
   const [load, setLoad] = useState<Load>({ state: 'loading' });
   const [busy, setBusy] = useState<string | null>(null);
