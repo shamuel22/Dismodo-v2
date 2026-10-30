@@ -9,7 +9,8 @@ import type { FastifyInstance } from 'fastify';
  */
 export function registerWebApp(app: FastifyInstance, distDir: string): boolean {
   if (!existsSync(path.join(distDir, 'index.html'))) return false;
-  void app.register(fastifyStatic, { root: distDir, wildcard: false, index: ['index.html'] });
+  // wildcard: files are looked up on each request, so a rebuild with new hashed names needs no restart.
+  void app.register(fastifyStatic, { root: distDir, wildcard: true, index: ['index.html'] });
   return true;
 }
 

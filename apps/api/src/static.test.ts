@@ -62,3 +62,12 @@ describe('cross-origin access', () => {
     expect(keyed.headers['access-control-allow-origin']).toBeUndefined();
   });
 });
+
+describe('rebuilt web app', () => {
+  it('serves files added after startup without a restart', async () => {
+    writeFileSync(path.join(dist, 'added-later.js'), 'console.log(2)');
+    expect((await app.inject({ url: '/added-later.js' })).body).toBe('console.log(2)');
+    expect((await app.inject({ url: '/docs/mcp' })).body).toContain('<title>DISMODO</title>');
+    expect((await app.inject({ url: '/v1/nope' })).json().error.code).toBe('not_found');
+  });
+});
