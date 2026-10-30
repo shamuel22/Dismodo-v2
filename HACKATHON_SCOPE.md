@@ -2,7 +2,7 @@
 
 **Event:** Meta Global AI Developer Hackathon (Cerebral Valley), building period Oct 26 – Nov 4, 2026
 **Track:** Indie Developer · **Problem statement:** Build for Your World
-**Participant:** Shamuel Perez (LUCUO SRL), solo
+**Participant:** Shamuel Perez, solo
 
 This document separates what was built during the hackathon from prior materials, as the rules require.
 It is updated at the end of every build stage.

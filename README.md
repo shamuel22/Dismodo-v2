@@ -40,4 +40,4 @@ pnpm check                # lint, format, typecheck, tests
 
 ## License
 
-MIT © LUCUO SRL
+MIT © 2026 Shamuel Perez
