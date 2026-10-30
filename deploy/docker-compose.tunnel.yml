@@ -1,0 +1,27 @@
+# Variant for a server where ports 80/443 already belong to something else.
+# Nothing is published: cloudflared dials out to Cloudflare, which terminates TLS
+# for the domain and forwards requests through the tunnel to Caddy on port 80.
+#
+# Usage (from the repository root), with CLOUDFLARE_TUNNEL_TOKEN in deploy/.env:
+#   docker compose -p dismodo -f deploy/docker-compose.prod.yml -f deploy/docker-compose.tunnel.yml up -d --build
+#
+# In Cloudflare (Zero Trust -> Networks -> Tunnels), give the tunnel a public
+# hostname <your domain> -> service http://caddy:80.
+
+services:
+  caddy:
+    ports: !reset []
+    environment:
+      DISMODO_SITE_ADDRESS: http://${DISMODO_DOMAIN:-localhost}
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.0
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?set CLOUDFLARE_TUNNEL_TOKEN in deploy/.env}
+    depends_on:
+      caddy:
+        condition: service_started
+    networks:
+      - edge

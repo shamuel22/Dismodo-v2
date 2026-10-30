@@ -27,6 +27,7 @@ const app = buildServer({
   webDistDir: new URL('../../web/dist', import.meta.url).pathname,
   docsDir: new URL('../../web/src/docs/content', import.meta.url).pathname,
   logLevel: env.LOG_LEVEL,
+  trustProxyHops: env.TRUST_PROXY_HOPS,
 });
 
 const shutdown = async () => {

@@ -47,6 +47,7 @@ services:
       PUBLIC_BASE_URL: https://${DISMODO_DOMAIN:-localhost}
       HOST: '0.0.0.0'
       PORT: '4100'
+      TRUST_PROXY_HOPS: '1'
     depends_on:
       db:
         condition: service_healthy
@@ -84,7 +85,7 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     environment:
-      DISMODO_DOMAIN: ${DISMODO_DOMAIN:-localhost}
+      DISMODO_SITE_ADDRESS: ${DISMODO_SITE_ADDRESS:-${DISMODO_DOMAIN:-localhost}}
     ports:
       - '80:80'
       - '443:443'

@@ -36,6 +36,8 @@ export interface ServerDeps {
   /** Models that draft packages (most capable first) and the reference package they imitate. */
   drafts?: { tiers: TierConfig[]; reference: unknown };
   logLevel?: string;
+  /** Number of reverse proxies whose X-Forwarded-For is trusted; 0 trusts none. */
+  trustProxyHops?: number;
 }
 
 export function buildServer({
@@ -50,9 +52,12 @@ export function buildServer({
   docsDir,
   drafts,
   logLevel = 'info',
+  trustProxyHops = 0,
 }: ServerDeps): FastifyInstance {
   const app = Fastify({
     logger: { level: logLevel },
+    // Per-IP rate limits need the real client address when a reverse proxy sits in front.
+    trustProxy: (_address: string, hop: number) => hop < trustProxyHops,
     onProtoPoisoning: 'error',
     onConstructorPoisoning: 'error',
   });

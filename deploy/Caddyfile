@@ -1,8 +1,18 @@
 # DISMODO production reverse proxy.
-# DISMODO_DOMAIN comes from the caddy service environment (deploy/.env).
-# Caddy obtains and renews the TLS certificate automatically (ACME).
+# DISMODO_SITE_ADDRESS comes from the caddy service environment: the bare domain
+# (Caddy obtains and renews the TLS certificate itself), or "http://<domain>"
+# behind a Cloudflare Tunnel, where Cloudflare terminates TLS.
 
-{$DISMODO_DOMAIN} {
+{
+	servers {
+		# Behind the tunnel the peer is cloudflared on a private network; trust it for the
+		# visitor's address. Public peers (direct mode) are not trusted, so the header is ignored.
+		trusted_proxies static private_ranges
+		client_ip_headers Cf-Connecting-Ip X-Forwarded-For
+	}
+}
+
+{$DISMODO_SITE_ADDRESS} {
 	encode zstd gzip
 
 	header {
@@ -30,7 +40,10 @@
 	}
 
 	handle {
-		reverse_proxy api:4100
+		# The API trusts exactly one proxy hop (TRUST_PROXY_HOPS=1) for per-IP rate limits.
+		reverse_proxy api:4100 {
+			header_up X-Forwarded-For {client_ip}
+		}
 	}
 
 	log {

@@ -10,6 +10,8 @@ const Env = z.object({
   META_API_KEY: z.string().default(''),
   META_BASE_URL: z.url().default('https://api.meta.ai/v1'),
   META_MODEL: z.string().default('muse-spark-1.3'),
+  /** Proxies in front of the API (e.g. 1 behind Caddy) whose X-Forwarded-For is trusted for the client IP. */
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 });
 export type Env = z.infer<typeof Env>;

@@ -27,6 +27,22 @@ describe('server', () => {
     await broken.close();
   });
 
+  it('takes the client address from X-Forwarded-For only behind a trusted proxy', async () => {
+    const ipOf = async (trustProxyHops: number) => {
+      const server = buildServer({ db: database.db, logLevel: 'silent', trustProxyHops });
+      server.get('/test-ip', (request) => ({ ip: request.ip }));
+      const res = await server.inject({
+        method: 'GET',
+        url: '/test-ip',
+        headers: { 'x-forwarded-for': '203.0.113.7' },
+      });
+      await server.close();
+      return res.json().ip;
+    };
+    expect(await ipOf(1)).toBe('203.0.113.7');
+    expect(await ipOf(0)).toBe('127.0.0.1');
+  });
+
   it('answers unknown routes with the standard error shape', async () => {
     const res = await app.inject({ method: 'GET', url: '/nope' });
     expect(res.statusCode).toBe(404);

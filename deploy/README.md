@@ -66,6 +66,24 @@ Wait until `dig +short dismodo.example.com` returns the VPS address.
 Caddy can only get a certificate once DNS resolves to this machine and
 ports 80/443 are reachable from the internet.
 
+## 2b. Alternative: a server whose ports 80/443 are taken
+
+When another project's proxy already owns 80/443, publish nothing and use a
+Cloudflare Tunnel (`deploy/docker-compose.tunnel.yml`):
+
+1. In Cloudflare Zero Trust → Networks → Tunnels, create a tunnel (cloudflared,
+   Docker) and copy its token into `deploy/.env` as `CLOUDFLARE_TUNNEL_TOKEN`.
+2. Add a public hostname to the tunnel: your domain → service `http://caddy:80`.
+   Cloudflare creates the DNS record and terminates TLS.
+3. Start with both files and a project name that keeps volumes and networks apart:
+
+```bash
+docker compose -p dismodo -f deploy/docker-compose.prod.yml -f deploy/docker-compose.tunnel.yml up -d --build
+```
+
+Caddy then serves plain HTTP inside the stack and takes the visitor's address
+from `Cf-Connecting-Ip`, so the API's per-IP limits apply per visitor.
+
 ## 3. Get the code and configure the environment
 
 ```bash
