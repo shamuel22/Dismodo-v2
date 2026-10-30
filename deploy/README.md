@@ -5,12 +5,12 @@ size is 4 CPU / 8 GB RAM) behind one public domain.
 
 The stack is four containers, defined in `deploy/docker-compose.prod.yml`:
 
-| Service | Image                      | Reachable from        |
-| ------- | -------------------------- | --------------------- |
-| `caddy` | `caddy:2-alpine`           | Internet, ports 80/443 |
-| `api`   | built from `deploy/Dockerfile`     | Only through Caddy    |
+| Service | Image                              | Reachable from                |
+| ------- | ---------------------------------- | ----------------------------- |
+| `caddy` | `caddy:2-alpine`                   | Internet, ports 80/443        |
+| `api`   | built from `deploy/Dockerfile`     | Only through Caddy            |
 | `mcp`   | built from `deploy/Dockerfile.mcp` | Only through Caddy, at `/mcp` |
-| `db`    | `postgres:17-alpine`       | Only `api` (never published) |
+| `db`    | `postgres:17-alpine`               | Only `api` (never published)  |
 
 Caddy terminates TLS (automatic HTTPS via Let's Encrypt) and proxies
 `/mcp` to the MCP server and everything else to the API. The API serves
