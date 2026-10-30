@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { builtinRegistry } from '@dismodo/activities';
 import type { ValidationIssue } from '@dismodo/contracts';
 import { validatePackage } from '@dismodo/engine';
@@ -113,4 +113,42 @@ export async function publishCommand(
   if (status !== 200) return apiError(out, status, payload);
   if (!out.json) out.log(`✓ Published ${ref}, reviewed by ${reviewer}.`);
   return { exitCode: 0, data: payload };
+}
+
+/** Asks DISMODO to draft a package from notes; writes it to a file for review. Never imports or publishes. */
+export async function draftCommand(
+  notesFile: string,
+  experienceId: string,
+  outFile: string,
+  options: ApiOptions,
+  out: Output,
+): Promise<CommandResult> {
+  const source = await readFile(notesFile, 'utf8');
+  const { status, payload } = await api(options, 'POST', '/v1/package-drafts', {
+    source,
+    experience_id: experienceId,
+  });
+  if (status !== 200) return apiError(out, status, payload);
+  const result = payload as {
+    draft: unknown;
+    valid: boolean;
+    issues: ValidationIssue[];
+    rounds: number;
+    attempts: Array<{ model: string; status: string; latency_ms: number }>;
+  };
+  if (result.draft) await writeFile(outFile, JSON.stringify(result.draft, null, 2) + '\n');
+  if (!out.json) {
+    const models = result.attempts
+      .map((a) => `${a.model} ${a.status} ${(a.latency_ms / 1000).toFixed(1)} s`)
+      .join(', ');
+    out.log(
+      `${result.valid ? '✓' : '✗'} Draft ${result.valid ? 'passes validation' : 'still has problems'} after ${result.rounds} round(s) (${models}).`,
+    );
+    if (!result.valid) printIssues(out, result.issues);
+    if (result.draft)
+      out.log(
+        `  written to ${outFile} — review every fact and text, then: dismodo validate / import / publish`,
+      );
+  }
+  return { exitCode: result.valid ? 0 : 1, data: payload };
 }

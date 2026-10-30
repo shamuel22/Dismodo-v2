@@ -272,6 +272,12 @@ describe('sessions', () => {
     for (let i = 0; i < 92; i++) statuses.push((await runtime(token)).statusCode);
     expect(statuses.slice(0, 90).every((s) => s === 200)).toBe(true);
     expect(statuses.at(-1)).toBe(429);
+    // Extra whitespace does not mint a fresh bucket.
+    const spaced = await app.inject({
+      url: '/v1/runtime/session',
+      headers: { authorization: `Session   ${token}` },
+    });
+    expect(spaced.statusCode).toBe(429);
     expect((await runtime(token)).json().error.code).toBe('rate_limited');
   });
 });

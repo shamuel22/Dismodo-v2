@@ -151,6 +151,19 @@ export function matches(terms: string[], fields: string[]): boolean {
   );
 }
 
+/** Runs tasks for the same key one after another; different keys run in parallel. */
+const queues = new Map<string, Promise<unknown>>();
+export function serialised<T>(key: string, task: () => Promise<T>): Promise<T> {
+  const previous = queues.get(key) ?? Promise.resolve();
+  const run = previous.then(task, task);
+  const tail = run.catch(() => undefined);
+  queues.set(key, tail);
+  void tail.then(() => {
+    if (queues.get(key) === tail) queues.delete(key);
+  });
+  return run;
+}
+
 export function createSessionService(deps: SessionServiceDeps) {
   const { db, registry } = deps;
   const now = deps.now ?? (() => new Date());
@@ -429,6 +442,12 @@ export function createSessionService(deps: SessionServiceDeps) {
      * is recomputed. A slow model therefore never blocks the database or other requests.
      */
     async submit(sessionId: string, action: LearnerAction, clientEventId?: string) {
+      // One action at a time per session in this process, so parallel retries cannot each pay for a model
+      // call; the row lock in submitNow still guarantees consistency across processes.
+      return serialised(sessionId, () => this.submitNow(sessionId, action, clientEventId));
+    },
+
+    async submitNow(sessionId: string, action: LearnerAction, clientEventId?: string) {
       for (let round = 0; round < 3; round++) {
         const [snapshot] = await db.select().from(sessions).where(eq(sessions.id, sessionId));
         if (!snapshot) throw new ApiError(404, 'not_found', 'No such session.');

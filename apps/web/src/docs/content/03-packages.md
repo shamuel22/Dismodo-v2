@@ -48,6 +48,16 @@ pnpm dismodo validate path/to/experience.json --json # for scripts and agents
 
 Examples of packages that fail, with the messages they produce, are in `experiences/invalid/` in the repository.
 
+## Drafting a package with AI
+
+**Status: Preview.** Describe what you want to teach — audience, settings, typical mistakes — and DISMODO asks a decision model (Muse Wonder, falling back to Muse Spark) to draft a complete package. The engine validates the draft and gives the model one round to repair what validation reports.
+
+```bash
+pnpm dismodo draft notes.md --id thirds-in-the-kitchen    # writes thirds-in-the-kitchen.draft.json
+```
+
+or `POST /v1/package-drafts` with `{ "source": "…", "experience_id": "…" }`. The draft is never stored or published: you review every fact and sentence, then validate, import and publish it as usual. Validation proves structure and behaviour, not truth.
+
 ## Activities available today
 
 | Activity           | Evaluator            | Tasks                                                                                                                     |

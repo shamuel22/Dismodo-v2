@@ -3,12 +3,14 @@ import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import { sql } from 'drizzle-orm';
 import { builtinRegistry } from '@dismodo/activities';
+import type { TierConfig } from '@dismodo/adaptation';
 import type { ComponentRegistry } from '@dismodo/contracts';
 import { ENGINE_VERSION } from '@dismodo/engine';
 import { authenticator } from './auth/plugin';
 import type { Database } from './db/client';
 import { ApiError } from './errors';
 import { catalogRoutes } from './routes/catalog';
+import { draftRoutes } from './routes/drafts';
 import { learnerRoutes } from './routes/learners';
 import { llmsRoutes } from './routes/llms';
 import { playgroundRoutes } from './routes/playground';
@@ -31,6 +33,8 @@ export interface ServerDeps {
   webDistDir?: string;
   /** Markdown sources of the documentation, served as llms.txt and .md pages. */
   docsDir?: string;
+  /** Models that draft packages (most capable first) and the reference package they imitate. */
+  drafts?: { tiers: TierConfig[]; reference: unknown };
   logLevel?: string;
 }
 
@@ -44,6 +48,7 @@ export function buildServer({
   now,
   webDistDir,
   docsDir,
+  drafts,
   logLevel = 'info',
 }: ServerDeps): FastifyInstance {
   const app = Fastify({
@@ -135,6 +140,7 @@ export function buildServer({
     learnerRoutes(api, { db, auth });
     playgroundRoutes(api, { db, service: sessionService });
     if (docsDir) llmsRoutes(api, { docsDir, publicBaseUrl });
+    draftRoutes(api, { registry, auth, tiers: drafts?.tiers ?? [], reference: drafts?.reference ?? null });
   });
 
   return app;

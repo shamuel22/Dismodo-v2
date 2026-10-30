@@ -151,4 +151,71 @@ describe('adaptive sessions through the API', () => {
       ]),
     );
   });
+
+  it('pays for one model call when the same decision is requested twice at once', async () => {
+    let slowCalls = 0;
+    const slow: DecisionModel = {
+      provider: 'test',
+      model: 'slow-1',
+      async complete(req) {
+        slowCalls++;
+        await new Promise((r) => setTimeout(r, 150));
+        const user = JSON.parse(req.user);
+        return {
+          content: JSON.stringify({
+            action: 'intervene',
+            intervention: user.candidates[1].id,
+            confusion_id: 'none',
+            interpretation: '',
+            rationale: 'Another explanation may help.',
+            evidence_seqs: [user.evidence.at(-1).seq],
+          }),
+          latency_ms: 150,
+          input_tokens: 1,
+          output_tokens: 1,
+          reasoning_tokens: null,
+        };
+      },
+    };
+    const slowApp = buildServer({
+      db: database.db,
+      logLevel: 'silent',
+      policies: {
+        adaptive: createModelPolicy({ routine: { model: slow, timeoutMs: 2000, maxTokens: 100 } }),
+        fixed: editorialPolicy,
+      },
+    });
+    const post = (url: string, payload: unknown) =>
+      slowApp.inject({
+        method: 'POST',
+        url,
+        headers: { authorization: `Bearer ${key}` },
+        payload: payload as object,
+      });
+    const created = (
+      await post('/v1/sessions', { experience: experienceId, learner_ref: 'l-parallel' })
+    ).json();
+    const id = created.session.session_id;
+    let view = created.view;
+    const answer = (count: number) => ({
+      action: {
+        type: 'answer',
+        item_id: view.step.item.item_id,
+        response: { selected: Array.from({ length: count }, (_, i) => `e${i + 1}`) },
+      },
+    });
+    view = (await post(`/v1/sessions/${id}/events`, answer(view.step.item.view.total / 4))).json().view;
+    view = (await post(`/v1/sessions/${id}/events`, { action: { type: 'continue' } })).json().view;
+    view = (await post(`/v1/sessions/${id}/events`, answer(1))).json().view; // a mistake: needs a decision
+    const both = await Promise.all([
+      post(`/v1/sessions/${id}/events`, { action: { type: 'continue' } }),
+      post(`/v1/sessions/${id}/events`, { action: { type: 'continue' } }),
+    ]);
+    // The second request waits for the first and then acts on the new state (leaving the explanation):
+    // it never triggers a second, paid decision.
+    expect(slowCalls).toBe(1);
+    expect(both.map((r) => r.statusCode)).toEqual([200, 200]);
+    expect(both.map((r) => r.json().view.step.kind).sort()).toEqual(['explanation', 'item']);
+    await slowApp.close();
+  });
 });

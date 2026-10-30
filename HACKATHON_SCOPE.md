@@ -28,6 +28,8 @@ All code in this repository was written during the event. The git history is una
 | Embeddable session | `apps/web/src/embed.tsx` | E7 | `<dismodo-session>` Web Component in a shadow root, served by the API; CORS limited to learner-link routes. |
 | Second product (example) | `examples/acme-onboarding/` | E7 | A separate portal with its own brand and key that publishes its own package, starts sessions with the SDK, embeds the session and shows managers the evidence. |
 | MCP server | `apps/mcp` | E8 | Consumer tools `search_experiences`, `start_session`, `get_evidence` over stdio and Streamable HTTP, built on the SDK; tested with the official MCP client and Claude Code. |
+| Builder console | `apps/web/src/docs/ConsolePage.tsx`, `apps/api` | E8 | Sessions, evidence, full decision traces, model metrics and the adaptive vs fixed comparison. |
+| AI package drafts | `packages/adaptation/src/drafts.ts`, `apps/api`, `packages/cli` | E8 | Muse Wonder (Muse Spark fallback) drafts a package from a builder's notes; the engine validates it and the model repairs once; never stored or published without review. |
 | TypeScript SDK | `packages/sdk` | E6 | **Built by Muse Code** from task `docs/muse-tasks/001-sdk.md`; reviewed and merged by the lead engineer (one test type fix). |
 | Builder variant package | `examples/acme-onboarding/` | E6 | **Built by Muse Code** acting as a second, independent builder (task `docs/muse-tasks/002-variant-package.md`): `halves-vs-quarters@1.0.0`, valid with no engine changes. |
 
@@ -44,7 +46,7 @@ All code in this repository was written during the event. The git history is una
 | Tool | Role |
 | --- | --- |
 | **Muse Spark 1.3** (Meta Model API) | Runs inside the engine as the routine decision tier: chooses the next support step and the matching reviewed hypothesis from closed lists; every call is traced. |
-| **Muse Wonder 1.0** (Meta Model API) | Runs inside the engine as the critical decision tier for escalated moments (rejected hypothesis, repeated mistake, confident but incorrect after support). |
+| **Muse Wonder 1.0** (Meta Model API) | Runs inside the engine as the critical decision tier for escalated moments (rejected hypothesis, repeated mistake, confident but incorrect after support), and drafts experience packages for builders from their notes. |
 | **Muse Code with Muse Wonder** (Meta) | Second development agent working from written task specs in isolated git worktrees; built the TypeScript SDK and the Acme variant package. Its commits carry `Co-Authored-By: Muse Code`; every change was reviewed before merge. |
 | **Claude Code** (Anthropic Opus 5.5) | Lead engineering agent under the founder's direction; its commits carry `Co-Authored-By: Claude`. |
 | **Codex** (OpenAI GPT-6.1) | Read-only design and security reviewer at stage boundaries (contract, isolation, adaptation). Wrote no project code; findings and resolutions are logged in `PLAN_DESARROLLO.md`. |

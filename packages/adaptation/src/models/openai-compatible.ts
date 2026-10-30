@@ -52,10 +52,12 @@ export function openAICompatibleModel(options: OpenAICompatibleOptions): Decisio
             ],
             max_completion_tokens: request.maxTokens,
             ...(options.reasoningEffort ? { reasoning_effort: options.reasoningEffort } : {}),
-            response_format: {
-              type: 'json_schema',
-              json_schema: { name: request.schemaName, strict: true, schema: request.schema },
-            },
+            response_format: request.schema
+              ? {
+                  type: 'json_schema',
+                  json_schema: { name: request.schemaName, strict: true, schema: request.schema },
+                }
+              : { type: 'json_object' },
           }),
         },
         request.timeoutMs,

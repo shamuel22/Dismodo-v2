@@ -1,5 +1,12 @@
 import { parseArgs } from 'node:util';
-import { importCommand, publishCommand, validateCommand, type CommandResult, type Output } from './commands';
+import {
+  draftCommand,
+  importCommand,
+  publishCommand,
+  validateCommand,
+  type CommandResult,
+  type Output,
+} from './commands';
 
 const HELP = `dismodo — builder CLI for DISMODO experience packages
 
@@ -7,6 +14,7 @@ Usage:
   dismodo validate <package.json>                 Check structure, semantics and package tests (offline)
   dismodo import <package.json>                   Import a new immutable draft version
   dismodo publish <id@version> --reviewer <name>  Publish a reviewed draft [--hash sha256:...]
+  dismodo draft <notes.md> --id <experience-id>   Draft a package with AI from notes [--out file.json]
 
 Options:
   --api <url>   API base URL (env DISMODO_API_URL, default http://localhost:4100)
@@ -21,6 +29,8 @@ const { values, positionals } = parseArgs({
     key: { type: 'string' },
     reviewer: { type: 'string' },
     hash: { type: 'string' },
+    id: { type: 'string' },
+    out: { type: 'string' },
     json: { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   },
@@ -47,6 +57,9 @@ async function run(): Promise<CommandResult> {
     case 'publish':
       if (!values.reviewer) throw new Error('publish needs --reviewer "<name>".');
       return publishCommand(target, values.reviewer, values.hash, api, out);
+    case 'draft':
+      if (!values.id) throw new Error('draft needs --id <experience-id>.');
+      return draftCommand(target, values.id, values.out ?? `${values.id}.draft.json`, api, out);
     default:
       throw new Error(`Unknown command "${command}". See dismodo --help.`);
   }

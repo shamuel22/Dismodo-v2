@@ -4,16 +4,25 @@
  * It keeps its own interface and brand, holds its own API key on the server, publishes its own experience
  * package (no engine changes) and embeds the learner session with <dismodo-session>. A manager page shows
  * the evidence Acme receives. Run the DISMODO API first; see README.md.
+ *
+ * This example has no employee sign-in: anyone who can reach it can start sessions as a listed employee.
+ * It therefore listens on loopback only, and the manager page needs ACME_MANAGER_PASSCODE. A real product
+ * authenticates its own users before calling DISMODO.
  */
-import { createServer } from 'node:http';
-import { randomBytes } from 'node:crypto';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { createClient, DismodoApiError, tokenFromSessionUrl, type SessionEvidence } from '@dismodo/sdk';
 import { escape, layout } from './pages';
 
 const PORT = Number(process.env.PORT ?? 4300);
+const HOST = process.env.HOST ?? '127.0.0.1';
 const DISMODO = process.env.DISMODO_API_URL ?? 'http://localhost:4100';
 const KEY = process.env.ACME_DISMODO_API_KEY;
+const MANAGER_PASSCODE = process.env.ACME_MANAGER_PASSCODE ?? '';
+const MAX_BODY = 4 * 1024;
+/** Sessions kept for the manager page; older ones drop off (a real product would store them). */
+const MAX_KEPT = 50;
 if (!KEY) {
   console.error(
     'Set ACME_DISMODO_API_KEY (create one with: pnpm tenant:create --slug acme --name "Acme Onboarding").',
@@ -29,7 +38,6 @@ const EMPLOYEES = [
 ];
 const EXPERIENCE = 'halves-vs-quarters';
 
-/** Sessions Acme started, kept in memory for this demo (a real product would store them). */
 const started: Array<{ id: string; sessionId: string; token: string; employee: string; at: Date }> = [];
 
 async function ensurePackage() {
@@ -37,12 +45,11 @@ async function ensurePackage() {
     await readFile(new URL('./experiences/halves-vs-quarters/experience.json', import.meta.url), 'utf8'),
   );
   const imported = await dismodo.packages.import(content);
-  const ref = imported.package.ref;
   if (imported.package.status !== 'published') {
     await dismodo.packages.publish(content.experience_id, content.version, { reviewer: 'Acme L&D team' });
   }
   console.log(
-    `Acme package ${ref} is published on DISMODO (${imported.created ? 'imported now' : 'already there'}).`,
+    `Acme package ${imported.package.ref} is published on DISMODO (${imported.created ? 'imported now' : 'already there'}).`,
   );
 }
 
@@ -76,17 +83,17 @@ function sessionPage(token: string): string {
 }
 
 async function managerPage(): Promise<string> {
-  const rows = await Promise.all(
-    started.map(async (s) => {
-      const report: SessionEvidence | null = await dismodo.sessions.evidence(s.sessionId).catch(() => null);
-      const name = EMPLOYEES.find((e) => e.ref === s.employee)?.name ?? s.employee;
-      const o = report?.observations;
-      return `<tr><td>${escape(name)}</td><td>${escape(report?.status ?? '…')}</td>
-        <td>${o ? `${o.practice.correct}/${o.practice.attempted} (${o.practice.hints_used} hints)` : '—'}</td>
-        <td>${o ? `${o.independent.correct}/${o.independent.attempted}` : '—'}</td>
-        <td>${escape(report?.statements.not_yet_checked[0] ?? '')}</td></tr>`;
-    }),
-  );
+  const rows: string[] = [];
+  // Sequential over a bounded list: a page view never fans out into many parallel API calls.
+  for (const s of started) {
+    const report: SessionEvidence | null = await dismodo.sessions.evidence(s.sessionId).catch(() => null);
+    const name = EMPLOYEES.find((e) => e.ref === s.employee)?.name ?? s.employee;
+    const o = report?.observations;
+    rows.push(`<tr><td>${escape(name)}</td><td>${escape(report?.status ?? '…')}</td>
+      <td>${o ? `${o.practice.correct}/${o.practice.attempted} (${o.practice.hints_used} hints)` : '—'}</td>
+      <td>${o ? `${o.independent.correct}/${o.independent.attempted}` : '—'}</td>
+      <td>${escape(report?.statements.not_yet_checked[0] ?? '')}</td></tr>`);
+  }
   return layout(
     'Team progress',
     `<h1>Team progress</h1>
@@ -99,47 +106,79 @@ async function managerPage(): Promise<string> {
   );
 }
 
-const server = createServer(async (req, res) => {
-  const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
+function managerAllowed(req: IncomingMessage): boolean {
+  if (!MANAGER_PASSCODE) return false;
+  const given = Buffer.from((req.headers.authorization ?? '').replace(/^Basic /, ''), 'base64').toString();
+  const passcode = Buffer.from(given.slice(given.indexOf(':') + 1));
+  const expected = Buffer.from(MANAGER_PASSCODE);
+  return passcode.length === expected.length && timingSafeEqual(passcode, expected);
+}
+
+async function readForm(req: IncomingMessage): Promise<URLSearchParams | null> {
+  let body = '';
+  for await (const chunk of req) {
+    body += chunk;
+    if (body.length > MAX_BODY) return null;
+  }
+  return new URLSearchParams(body);
+}
+
+async function handle(req: IncomingMessage, res: ServerResponse) {
+  // The Host header is client-controlled, so it is never used to build URLs.
+  const url = new URL(req.url ?? '/', 'http://acme.local');
   const html = (status: number, body: string) => {
     res.writeHead(status, { 'content-type': 'text/html; charset=utf-8' });
     res.end(body);
   };
-  try {
-    if (req.method === 'GET' && url.pathname === '/') return html(200, homePage());
-    if (req.method === 'POST' && url.pathname === '/start') {
-      let body = '';
-      for await (const chunk of req) body += chunk;
-      const employee = new URLSearchParams(body).get('employee') ?? '';
-      if (!EMPLOYEES.some((e) => e.ref === employee))
-        return html(400, layout('Error', '<p>Unknown employee.</p>'));
-      const { session } = await dismodo.sessions.start({ experience: EXPERIENCE, learnerRef: employee });
-      const id = randomBytes(9).toString('base64url');
-      started.unshift({
-        id,
-        sessionId: session.session_id,
-        token: tokenFromSessionUrl(session.url)!,
-        employee,
-        at: new Date(),
-      });
-      res.writeHead(303, { location: `/practice/${id}` });
-      return res.end();
+  if (req.method === 'GET' && url.pathname === '/') return html(200, homePage());
+  if (req.method === 'POST' && url.pathname === '/start') {
+    const form = await readForm(req);
+    if (!form) return html(413, layout('Error', '<p>Request too large.</p>'));
+    const employee = form.get('employee') ?? '';
+    if (!EMPLOYEES.some((e) => e.ref === employee))
+      return html(400, layout('Error', '<p>Unknown employee.</p>'));
+    const { session } = await dismodo.sessions.start({ experience: EXPERIENCE, learnerRef: employee });
+    const id = randomBytes(9).toString('base64url');
+    started.unshift({
+      id,
+      sessionId: session.session_id,
+      token: tokenFromSessionUrl(session.url)!,
+      employee,
+      at: new Date(),
+    });
+    started.length = Math.min(started.length, MAX_KEPT);
+    res.writeHead(303, { location: `/practice/${id}` });
+    return res.end();
+  }
+  const practice = /^\/practice\/([\w-]+)$/.exec(url.pathname);
+  if (req.method === 'GET' && practice) {
+    const entry = started.find((s) => s.id === practice[1]);
+    return entry
+      ? html(200, sessionPage(entry.token))
+      : html(404, layout('Not found', '<p>No such practice.</p>'));
+  }
+  if (req.method === 'GET' && url.pathname === '/manager') {
+    if (!managerAllowed(req)) {
+      res.writeHead(401, { 'www-authenticate': 'Basic realm="Acme managers"', 'content-type': 'text/plain' });
+      return res.end(
+        MANAGER_PASSCODE ? 'Manager passcode required.' : 'Set ACME_MANAGER_PASSCODE to enable this page.',
+      );
     }
-    const practice = /^\/practice\/([\w-]+)$/.exec(url.pathname);
-    if (req.method === 'GET' && practice) {
-      const entry = started.find((s) => s.id === practice[1]);
-      return entry
-        ? html(200, sessionPage(entry.token))
-        : html(404, layout('Not found', '<p>No such practice.</p>'));
-    }
-    if (req.method === 'GET' && url.pathname === '/manager') return html(200, await managerPage());
-    return html(404, layout('Not found', '<p>Page not found.</p>'));
-  } catch (error) {
+    return html(200, await managerPage());
+  }
+  return html(404, layout('Not found', '<p>Page not found.</p>'));
+}
+
+const server = createServer((req, res) => {
+  req.on('error', () => undefined);
+  handle(req, res).catch((error: unknown) => {
     const message =
       error instanceof DismodoApiError ? `${error.code}: ${error.message}` : (error as Error).message;
-    return html(502, layout('Error', `<p>DISMODO request failed: ${escape(message)}</p>`));
-  }
+    if (res.headersSent) return res.end();
+    res.writeHead(502, { 'content-type': 'text/html; charset=utf-8' });
+    res.end(layout('Error', `<p>DISMODO request failed: ${escape(message)}</p>`));
+  });
 });
 
 await ensurePackage();
-server.listen(PORT, () => console.log(`Acme Onboarding on http://localhost:${PORT}`));
+server.listen(PORT, HOST, () => console.log(`Acme Onboarding on http://${HOST}:${PORT}`));

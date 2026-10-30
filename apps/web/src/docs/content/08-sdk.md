@@ -66,6 +66,7 @@ The token is the part of `session.url` after `#` (`tokenFromSessionUrl` extracts
 pnpm dismodo validate experience.json
 pnpm dismodo import experience.json        # needs DISMODO_API_KEY
 pnpm dismodo publish my-experience@1.0.0 --reviewer "Name"
+pnpm dismodo draft notes.md --id my-experience    # AI draft, for review
 ```
 
 ## A second builder, end to end

@@ -19,10 +19,14 @@ pnpm dev:api                                   # http://localhost:4100
 
 # 2. A key for Acme's tenant
 pnpm tenant:create --slug acme --name "Acme Onboarding"
-echo "ACME_DISMODO_API_KEY=dsm_..." > examples/acme-onboarding/.env
+printf "ACME_DISMODO_API_KEY=dsm_...\nACME_MANAGER_PASSCODE=choose-one\n" > examples/acme-onboarding/.env
 
 # 3. Acme's portal
 pnpm --filter @dismodo-example/acme-onboarding start   # http://localhost:4300
 ```
 
 Employees are identified to DISMODO only by pseudonymous refs (`acme-emp-1042`); names stay in Acme.
+
+**This is a demo, not a template for production.** It has no employee sign-in, so it listens on loopback only
+(`HOST=127.0.0.1`) and the manager page asks for `ACME_MANAGER_PASSCODE` (any user name). A real product
+authenticates its own users before it calls DISMODO on their behalf.

@@ -38,7 +38,11 @@ export function anthropicModel(options: AnthropicOptions): DecisionModel {
             system: request.system,
             messages: [{ role: 'user', content: request.user }],
             tools: [
-              { name: request.schemaName, description: 'Return the decision.', input_schema: request.schema },
+              {
+                name: request.schemaName,
+                description: 'Return the result.',
+                input_schema: request.schema ?? { type: 'object' },
+              },
             ],
             tool_choice: { type: 'tool', name: request.schemaName },
           }),

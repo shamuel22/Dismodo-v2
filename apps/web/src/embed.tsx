@@ -33,9 +33,11 @@ class DismodoSessionElement extends HTMLElement {
       const style = document.createElement('style');
       style.textContent = STYLES;
       const mount = document.createElement('div');
+      mount.dataset.mount = '';
       shadow.append(style, mount);
-      this.root = createRoot(mount);
     }
+    // Moving the element in the DOM disconnects and reconnects it: recreate the React root each time.
+    if (!this.root) this.root = createRoot(this.shadowRoot!.querySelector('[data-mount]')!);
     this.render();
   }
 

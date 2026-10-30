@@ -6,7 +6,8 @@ export interface StructuredRequest {
   /** User content; the caller serialises untrusted data as JSON inside it. */
   user: string;
   schemaName: string;
-  schema: Record<string, unknown>;
+  /** Strict JSON Schema for the output; when omitted, any JSON object is requested (validated by the caller). */
+  schema?: Record<string, unknown>;
   maxTokens: number;
   timeoutMs: number;
 }

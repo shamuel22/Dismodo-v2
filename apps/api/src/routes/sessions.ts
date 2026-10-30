@@ -89,9 +89,8 @@ export function sessionRoutes(
 
   // Learner runtime: authenticated by the session link token, scoped to one session.
   const sessionFromToken = async (request: FastifyRequest) => {
-    const header = request.headers.authorization;
-    const token = header?.startsWith('Session ') ? header.slice(8).trim() : undefined;
-    if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
+    const token = sessionToken(request);
+    if (!token) {
       throw new ApiError(
         401,
         'invalid_session_token',
@@ -101,13 +100,17 @@ export function sessionRoutes(
     return service.findByToken(token);
   };
 
-  // About one action per second sustained per session link; generous for a person, tight for a script.
+  // About one action per second sustained per session link; generous for a person, tight for a script. The
+  // key is the canonical token (whitespace cannot mint new buckets); anything else is counted per address.
   const runtimeLimit = {
     config: {
       rateLimit: {
         max: 90,
         timeWindow: '1 minute',
-        keyGenerator: (request: FastifyRequest) => request.headers.authorization ?? request.ip,
+        keyGenerator: (request: FastifyRequest) => {
+          const token = sessionToken(request);
+          return token ? `session:${token}` : `ip:${request.ip}`;
+        },
       },
     },
   };
@@ -125,4 +128,10 @@ export function sessionRoutes(
     const body = parseOrThrow(SubmitEvent, request.body, 'event');
     return service.submit(session.id, body.action, body.client_event_id);
   });
+}
+
+/** The learner token from "Authorization: Session <token>", or null when absent or malformed. */
+export function sessionToken(request: FastifyRequest): string | null {
+  const match = /^Session\s+([A-Za-z0-9_-]{43})\s*$/.exec(request.headers.authorization ?? '');
+  return match ? match[1]! : null;
 }
