@@ -1,0 +1,118 @@
+# DISMODO production stack: Postgres + API + MCP behind Caddy (TLS).
+#
+# Usage (from the repository root):
+#   cp deploy/.env.production.example deploy/.env   # then edit deploy/.env
+#   docker compose -f deploy/docker-compose.prod.yml up -d --build
+#
+# Compose reads deploy/.env twice: for ${...} interpolation below and as
+# env_file for the services. Only Caddy publishes ports (80/443). The
+# database is never published; api and mcp are reachable only through Caddy.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    # required: false keeps "docker compose config" usable before
+    # deploy/.env exists; copy deploy/.env.production.example first.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dismodo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dismodo}
+      POSTGRES_DB: ${POSTGRES_DB:-dismodo}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-dismodo} -d ${POSTGRES_DB:-dismodo}']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: dismodo-api
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # These win over env_file: they must match the db service and the
+      # public domain, whatever the copied example still says.
+      DATABASE_URL: postgres://${POSTGRES_USER:-dismodo}:${POSTGRES_PASSWORD:-dismodo}@db:5432/${POSTGRES_DB:-dismodo}
+      PUBLIC_BASE_URL: https://${DISMODO_DOMAIN:-localhost}
+      HOST: '0.0.0.0'
+      PORT: '4100'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      # Inter-service traffic stays on backend; edge is outbound-only in
+      # practice: the decision models call api.meta.ai (and any other
+      # configured provider) over HTTPS. Nothing publishes api's port.
+      - backend
+      - edge
+
+  mcp:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.mcp
+    image: dismodo-mcp
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      MCP_HOST: '0.0.0.0'
+      MCP_PORT: '4200'
+      DISMODO_API_URL: http://api:4100
+      # Clients reach MCP through Caddy, so their Host header is the public
+      # domain. "mcp:4200" covers internal callers (and the healthcheck
+      # does not send one, it opens a bare TCP connection).
+      MCP_ALLOWED_HOSTS: ${DISMODO_DOMAIN:-localhost},mcp:4200,localhost:4200
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - backend
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DISMODO_DOMAIN: ${DISMODO_DOMAIN:-localhost}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp' # HTTP/3; harmless if UDP 443 is closed in the firewall
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_started
+      mcp:
+        condition: service_started
+    networks:
+      - backend
+      - edge
+
+networks:
+  # Services talk to each other only here; "internal" also blocks outbound
+  # access, so db and mcp (which only call api) live solely on backend.
+  # Caddy and api are dual-homed onto edge: Caddy needs outbound internet
+  # for ACME (Let's Encrypt), api for the model providers. Neither
+  # publishes its application port on edge.
+  backend:
+    internal: true
+  edge:
+
+volumes:
+  db_data:
+  caddy_data:
+  caddy_config:
