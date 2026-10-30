@@ -4,6 +4,7 @@ import { SessionPage } from './session/SessionPage';
 import { DocPageView } from './docs/DocPageView';
 import { DocsLayout } from './docs/DocsLayout';
 import { PlaygroundPage } from './docs/PlaygroundPage';
+import { ConsolePage } from './docs/ConsolePage';
 
 export function App() {
   return (
@@ -16,6 +17,14 @@ export function App() {
           element={
             <DocsLayout>
               <PlaygroundPage />
+            </DocsLayout>
+          }
+        />
+        <Route
+          path="/docs/console"
+          element={
+            <DocsLayout>
+              <ConsolePage />
             </DocsLayout>
           }
         />

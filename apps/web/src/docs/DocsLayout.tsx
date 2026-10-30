@@ -5,7 +5,10 @@ import { BrandLockup } from '../brand/AnimatedBrand';
 import { DOC_PAGES } from './content';
 import './docs.css';
 
-const EXTRA_LINKS = [{ to: '/docs/playground', label: 'Playground' }];
+const EXTRA_LINKS = [
+  { to: '/docs/playground', label: 'Playground' },
+  { to: '/docs/console', label: 'Console' },
+];
 
 /** Compact header, side navigation (a closed-by-default drawer on mobile) and the reading column. */
 export function DocsLayout({ children }: { children: ReactNode }) {

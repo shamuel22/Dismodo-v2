@@ -17,6 +17,11 @@ const CreateSession = z.strictObject({
 });
 
 const SessionId = z.strictObject({ id: z.uuid() });
+const SessionList = z.strictObject({
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+  experience: z.string().max(100).optional(),
+  policy: z.enum(['adaptive', 'fixed']).optional(),
+});
 const ExperienceQuery = z.strictObject({ q: z.string().max(100).optional() });
 
 export function sessionRoutes(
@@ -42,6 +47,18 @@ export function sessionRoutes(
       policy: body.policy,
     });
     return reply.status(201).send(created);
+  });
+
+  app.get('/v1/sessions', { preHandler: auth('evidence:read') }, async (request) => {
+    const { tenantId } = requireAuth(request);
+    const q = parseOrThrow(SessionList, request.query, 'query');
+    return {
+      sessions: await service.list(tenantId, {
+        limit: q.limit,
+        ...(q.experience ? { experienceId: q.experience } : {}),
+        ...(q.policy ? { policy: q.policy } : {}),
+      }),
+    };
   });
 
   app.get('/v1/sessions/:id', { preHandler: auth('sessions:write') }, async (request) => {

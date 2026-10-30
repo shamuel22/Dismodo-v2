@@ -17,6 +17,8 @@ import type {
   SessionEventsResponse,
   SessionEvidence,
   SessionViewResponse,
+  ListSessionsOptions,
+  ListSessionsResponse,
   LearnerEvidence,
   PlaygroundSessionInput,
   PlaygroundSessionResponse,
@@ -120,6 +122,8 @@ export interface DismodoClient {
   };
   sessions: {
     start(input: StartSessionInput): Promise<StartSessionResponse>;
+    /** Recent sessions of your product, newest first. */
+    list(options?: ListSessionsOptions): Promise<ListSessionsResponse>;
     get(id: string): Promise<SessionViewResponse>;
     submit(id: string, action: LearnerAction, options?: SubmitOptions): Promise<SubmitSessionResponse>;
     evidence(id: string): Promise<SessionEvidence>;
@@ -188,6 +192,14 @@ export function createClient(options: ClientOptions): DismodoClient {
           ...(input.declared !== undefined ? { declared: input.declared } : {}),
           ...(input.policy !== undefined ? { policy: input.policy } : {}),
         }),
+      list: (listOptions = {}) => {
+        const params = new URLSearchParams();
+        if (listOptions.limit !== undefined) params.set('limit', String(listOptions.limit));
+        if (listOptions.experience) params.set('experience', listOptions.experience);
+        if (listOptions.policy) params.set('policy', listOptions.policy);
+        const query = params.toString();
+        return authed.request('GET', `/v1/sessions${query ? `?${query}` : ''}`);
+      },
       get: (id) => authed.request('GET', `/v1/sessions/${encodeURIComponent(id)}`),
       submit: (id, action, submitOptions) =>
         authed.request(

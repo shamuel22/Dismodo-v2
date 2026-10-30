@@ -287,3 +287,25 @@ describe('experience search', () => {
     expect(await ids('quarters chemistry')).not.toContain(experienceId);
   });
 });
+
+describe('session listing', () => {
+  it('lists only this tenant’s sessions, newest first, with learner refs and filters', async () => {
+    await startSession('listed-learner', { policy: 'fixed' });
+    const res = await call('GET', `/v1/sessions?limit=5&experience=${experienceId}`, keys.aEvidenceOnly);
+    expect(res.statusCode).toBe(200);
+    const sessions = res.json().sessions;
+    expect(sessions[0]).toMatchObject({
+      learner_ref: 'listed-learner',
+      policy: 'fixed',
+      experience_ref: `${experienceId}@1.0.0`,
+    });
+    expect(sessions[0].url).toBeUndefined();
+    const fixedOnly = (await call('GET', '/v1/sessions?policy=fixed', keys.aEvidenceOnly)).json().sessions;
+    expect(fixedOnly.every((s: { policy: string }) => s.policy === 'fixed')).toBe(true);
+    expect(
+      (await call('GET', '/v1/sessions', keys.b))
+        .json()
+        .sessions.map((s: { learner_ref: string }) => s.learner_ref),
+    ).not.toContain('listed-learner');
+  });
+});

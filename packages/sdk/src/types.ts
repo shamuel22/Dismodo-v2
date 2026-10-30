@@ -104,6 +104,21 @@ export interface SessionDescriptor {
   completed_at: string | null;
 }
 
+export interface ListedSession extends SessionDescriptor {
+  learner_ref: string;
+}
+
+export interface ListSessionsResponse {
+  sessions: ListedSession[];
+}
+
+export interface ListSessionsOptions {
+  limit?: number;
+  /** Experience id (any version). */
+  experience?: string;
+  policy?: 'adaptive' | 'fixed';
+}
+
 export interface CreatedSessionDescriptor extends SessionDescriptor {
   url: string;
 }

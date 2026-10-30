@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomInt } from 'node:crypto';
-import { and, asc, eq, ne, or } from 'drizzle-orm';
+import { and, asc, desc, eq, ne, or } from 'drizzle-orm';
 import {
   compareSemVer,
   parseExperienceVersionRef,
@@ -377,6 +377,28 @@ export function createSessionService(deps: SessionServiceDeps) {
         await syncObservations(tx, updated!, state);
         return { session: describe(updated!, token), view: learnerView({ runtime }, state) };
       });
+    },
+
+    /** Recent sessions of a tenant, newest first, with the learner's external ref. */
+    async list(
+      tenantId: string,
+      filter: { limit: number; experienceId?: string; policy?: 'adaptive' | 'fixed' },
+    ) {
+      const rows = await db
+        .select({ session: sessions, learnerRef: learners.externalRef })
+        .from(sessions)
+        .innerJoin(learners, eq(learners.id, sessions.learnerId))
+        .where(
+          and(
+            eq(sessions.tenantId, tenantId),
+            ...(filter.policy ? [eq(sessions.policy, filter.policy)] : []),
+          ),
+        )
+        .orderBy(desc(sessions.createdAt))
+        .limit(filter.limit);
+      return rows
+        .filter((r) => !filter.experienceId || r.session.experienceRef.startsWith(`${filter.experienceId}@`))
+        .map((r) => ({ ...describe(r.session), learner_ref: r.learnerRef }));
     },
 
     async findForTenant(tenantId: string, sessionId: string) {
